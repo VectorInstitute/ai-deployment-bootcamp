@@ -1,0 +1,3 @@
+/reference_implementations/gcp/.terraform.lock.hcl
+/reference_implementations/gcp/.terraform/*
+/.idea
