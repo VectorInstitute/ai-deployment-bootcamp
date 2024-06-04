@@ -1,2 +1,3 @@
-project = "ai-deployment-bootcamp-step1"
-zone    = "northamerica-northeast2-b"
+project = "ai-deployment-bootcamp"
+zone    = "us-west2"
+step    = "step1"
