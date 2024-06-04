@@ -1,3 +1,9 @@
-/reference_implementations/gcp/.terraform.lock.hcl
-/reference_implementations/gcp/.terraform/*
 /.idea
+
+/venv/
+
+*.terraform.lock.hcl
+*.terraform/
+*terraform.tfstate
+*.terraform.tfstate.lock.info
+*terraform.tfstate.backup
