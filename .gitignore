@@ -1,6 +1,6 @@
 /.idea
 
-/venv/
+*venv/
 
 *.terraform.lock.hcl
 *.terraform/
