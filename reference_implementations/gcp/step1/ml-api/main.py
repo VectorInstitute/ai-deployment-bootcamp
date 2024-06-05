@@ -5,4 +5,4 @@ app = FastAPI()
 
 @app.get("/predict")
 async def predict():
-    return {"message": "Hello World"}
+    return {"message": "mock prediction"}
