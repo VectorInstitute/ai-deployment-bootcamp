@@ -1,5 +1,4 @@
 project = "ai-deployment-bootcamp"
-zone    = "us-west2"
 step    = "step1"
 region = "us-west2"
 user = "marcelolotif"
