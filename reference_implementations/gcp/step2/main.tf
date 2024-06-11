@@ -23,6 +23,23 @@ provider "google" {
   region  = var.region
 }
 
+resource "google_service_account" "sa" {
+  account_id = "${var.project}-sa"
+  display_name = "${var.project} Service Account"
+}
+
+resource "google_project_iam_member" "cloud_sql_client" {
+  project = var.project
+  role    = "roles/cloudsql.client"
+  member  = "serviceAccount:${google_service_account.sa.email}"
+}
+
+resource "google_project_iam_member" "storage_object_viewer" {
+  project = var.project
+  role    = "roles/storage.objectViewer"
+  member  = "serviceAccount:${google_service_account.sa.email}"
+}
+
 resource "google_sql_database_instance" "master" {
   name                = "${var.project}-db-instance"
   database_version    = "POSTGRES_14"
@@ -101,6 +118,10 @@ resource "google_compute_instance" "ml-api-server" {
   }
 
   metadata_startup_script = file(var.scriptpath)
+  service_account {
+    email = google_service_account.sa.email
+    scopes = ["sql-admin"]
+  }
 
   depends_on = [ google_compute_firewall.ssh, google_compute_firewall.webserver ]
   
