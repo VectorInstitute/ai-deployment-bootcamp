@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 from typing import Any, AsyncGenerator
 
 from fastapi import FastAPI
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
 from db.config import get_engine
@@ -28,6 +29,9 @@ async def predict(data_id: int):
 
     with Session(app.db_engine) as session:
         data = session.query(Data).get(data_id)
+
+    if data is None:
+        return JSONResponse(content={"error": f"Data with id {id} not found."}, status_code=400)
 
     return {"data": data, "prediction": random_prediction}
 
