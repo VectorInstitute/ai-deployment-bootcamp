@@ -31,7 +31,7 @@ async def predict(data_id: int):
         data = session.query(Data).get(data_id)
 
     if data is None:
-        return JSONResponse(content={"error": f"Data with id {id} not found."}, status_code=400)
+        return JSONResponse(content={"error": f"Data with id {data_id} not found."}, status_code=400)
 
     return {"data": data, "prediction": random_prediction}
 
