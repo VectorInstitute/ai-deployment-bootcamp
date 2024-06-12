@@ -1,19 +1,19 @@
-from sqlalchemy import String
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy import Integer, String, Engine
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, Session
 
 
 class Base(DeclarativeBase):
     pass
 
 
-class Prediction(Base):
-    __tablename__ = "prediction"
+class Data(Base):
+    __tablename__ = "data"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
-    prediction: Mapped[float] = mapped_column(String(30))
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    data: Mapped[int] = mapped_column(String(1500))
 
     def to_dict(self):
-        return {"id": self.id, "prediction": self.prediction}
+        return {"id": self.id, "data": self.data}
 
     def __repr__(self) -> str:
-        return f"Prediction({self.to_dict()})"
+        return f"DataTable({self.to_dict()})"

@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from sqlalchemy.orm import Session
 
 from db.config import get_engine
-from db.entities import Base, Prediction
+from db.entities import Base, Data
 
 
 @asynccontextmanager
@@ -21,15 +21,23 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[Any, Any]:
 app = FastAPI(lifespan=lifespan)
 
 
-@app.get("/predict")
-async def predict():
+@app.get("/predict/{data_id}")
+async def predict(data_id: int):
     import random
     random_prediction = random.random()
 
     with Session(app.db_engine) as session:
-        prediction = Prediction(prediction=random_prediction)
+        data = session.query(Data).get(data_id)
 
-        session.add_all([prediction])
+    return {"data": data, "prediction": random_prediction}
+
+
+@app.get("/add_data_point/{data_point}")
+async def predict(data_point: str):
+    with Session(app.db_engine) as session:
+        data = Data(data=data_point)
+
+        session.add_all([data])
         session.commit()
 
-        return {"prediction": prediction.to_dict()}
+        return {"data": data.to_dict()}
