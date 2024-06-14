@@ -7,3 +7,5 @@
 *terraform.tfstate
 *.terraform.tfstate.lock.info
 *terraform.tfstate.backup
+
+/reference_implementations/gcp/step3/vertex/bart-large-mnli/
