@@ -40,6 +40,12 @@ resource "google_project_iam_member" "storage_object_viewer" {
   member  = "serviceAccount:${google_service_account.sa.email}"
 }
 
+resource "google_project_iam_member" "ai_platform_user" {
+  project = var.project
+  role    = "roles/aiplatform.user"
+  member  = "serviceAccount:${google_service_account.sa.email}"
+}
+
 resource "google_sql_database_instance" "master" {
   name                = "${var.project}-db-instance"
   database_version    = "POSTGRES_14"
