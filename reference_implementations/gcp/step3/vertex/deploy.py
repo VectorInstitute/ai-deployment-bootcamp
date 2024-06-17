@@ -1,4 +1,3 @@
-import json
 import sys
 
 from google.cloud import aiplatform
@@ -25,8 +24,12 @@ else:
 # with an NVIDIA Tesla T4, 4 vCPUs and 15 GB of RAM memory
 endpoint = model.deploy(
     machine_type="n1-standard-4",
+    # GPU type
     accelerator_type="NVIDIA_TESLA_T4",
+    # Number of GPUs
     accelerator_count=1,
+    # auto-scaling
+    max_replica_count=10,
 )
 
 print(f"Endpoint resource name: {endpoint.resource_name}")
