@@ -102,7 +102,8 @@ resource "google_compute_instance" "ml-api-server" {
   name         = "ml-api-vm"
   machine_type = "e2-micro" 
   zone         = "${var.region}-a" 
-  tags         = ["sshfw","webserverfw"] 
+  tags         = ["sshfw","webserverfw"]
+  allow_stopping_for_update = true
 
    
   boot_disk { 
@@ -126,7 +127,7 @@ resource "google_compute_instance" "ml-api-server" {
   metadata_startup_script = file(var.scriptpath)
   service_account {
     email = google_service_account.sa.email
-    scopes = ["sql-admin"]
+    scopes = ["sql-admin", "cloud-platform"]
   }
 
   depends_on = [ google_compute_firewall.ssh, google_compute_firewall.webserver ]

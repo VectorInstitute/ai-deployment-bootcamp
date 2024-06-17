@@ -11,7 +11,8 @@ from google.cloud import aiplatform_v1
 from db.config import get_engine
 from db.entities import Base, Data
 
-ENDPOINT_ID = "8750322552166940672"
+ENDPOINT_ID = "6238862072466112512"
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[Any, Any]:

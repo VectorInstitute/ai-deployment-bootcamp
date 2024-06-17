@@ -38,7 +38,7 @@ python -m deploy
 ```
 Alternatively, you can pass in the model id and version if it has already been deployed:
 ```shell
-python -m deploy.py 1562581944930140160 1
+python -m deploy 1562581944930140160 1
 ```
 
 It will output the endpoint resource name at the end. Get the endpoint ID from it and set it to the
