@@ -1,0 +1,8 @@
+fastapi==0.109.1
+fastapi-cli==0.0.4
+cloud-sql-python-connector==1.9.2
+SQLAlchemy==2.0.30
+pg8000==1.31.2
+google-cloud-aiplatform[prediction]==1.55.0
+
+grpcio-status==1.62.2

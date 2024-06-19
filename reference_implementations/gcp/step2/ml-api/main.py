@@ -37,7 +37,7 @@ async def predict(data_id: int):
 
 
 @app.get("/add_data_point/{data_point}")
-async def predict(data_point: str):
+async def add_data_point(data_point: str):
     with Session(app.db_engine) as session:
         data = Data(data=data_point)
 
