@@ -5,4 +5,4 @@ accelerate==0.27.0
 cloud-sql-python-connector==1.9.2
 SQLAlchemy==2.0.30
 pg8000==1.31.2
-pandas==2.2.2
+pandas==2.0.3
