@@ -4,3 +4,4 @@ google-cloud-aiplatform[prediction]==1.55.0
 pandas==2.0.3
 
 grpcio-status==1.62.2
+numpy<2
