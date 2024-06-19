@@ -1,5 +1,6 @@
-from datetime import datetime
+import time
 
+import pandas as pd
 from google.cloud import aiplatform
 from sqlalchemy.orm import Session
 
@@ -9,20 +10,27 @@ from db.entities import Data
 
 db_engine = get_engine()
 with Session(db_engine) as session:
-    data_obj = session.query(Data).get()
+    data_list = session.query(Data).all()
 
-print(data_obj)
+data_to_import = []
+indexes = []
+for data in data_list:
+    data_to_import.append({"data_feature": data.data})
+    indexes.append(str(data.id))
 
-# aiplatform.init(project="ai-deployment-bootcamp", location="us-west2")
-#
-# my_entity_type = aiplatform.featurestore.EntityType(
-#     featurestore_id="featurestore",
-#     entity_type_name="featurestore_entitytype",
-# )
-#
-# my_entity_type.ingest_from_gcs(
-#     feature_ids=["featurestore_entitytype_feature_1"],
-#     feature_time=datetime.now(),  # can be replaced by timestamp db column
-#     gcs_source_uris=gcs_source_uris,
-#     gcs_source_type=gcs_source_type,
-# )
+df_to_import = pd.DataFrame(data_to_import, index=indexes)
+
+aiplatform.init(project="ai-deployment-bootcamp", location="us-west2")
+
+entity_type = aiplatform.featurestore.EntityType(
+    featurestore_id="featurestore",
+    entity_type_name="data_entity",
+)
+
+entity_type.preview.write_feature_values(instances=df_to_import)
+
+print("Waiting 30s for the changes to propagate...")
+time.sleep(30)
+
+print("Saved data:")
+print(entity_type.read(entity_ids=indexes))

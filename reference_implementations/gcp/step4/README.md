@@ -53,11 +53,11 @@ terraform plan
 terraform apply
 ```
 
-It will output the public ip address and also the SSH command.
+It will output the public ip address and also the SSH command. 
 
 # FastAPI
 
-To check the system logs, from inside the machine run:
+To check the system logs, ssh into the machine and run:
 ```shell
 tail -f /var/log/syslog
 ```
@@ -67,16 +67,27 @@ To check FastAPI logs, run:
 tail -f /ai-deployment-bootcamp/reference_implementations/gcp/step4/ml-api/ml-api.log
 ```
 
-# Predict
-
-Once up and running, the FastAPI endpoint will be available at:
-```shell
-http://<instance-ip>:8080/predict
-```
+Once `ml-api` instance is up and FastAPI is running, the endpoint will be available at port 8080.
 
 # Feature Store
 
-To check current feature stores:
+Add some data points to the SQL database, use the `add_data_point` script:
 ```shell
-curl -X GET -H "Authorization: Bearer $(gcloud auth print-access-token)" https://us-west2-aiplatform.googleapis.com/v1/projects/ai-deployment-bootcamp/locations/us-west2/featurestores
+python -m add_data_point "test data point 1"
+python -m add_data_point "test data point 2"
+python -m add_data_point "test data point 3"
+```
+
+To import those data points into the feature store:
+```shell
+python -m import_data
+```
+
+Now the data is ready to be pulled for prediction.
+
+# Predict
+
+To run a prediction in a data point, call the `/predict` endpoint with the data point id:
+```shell
+http://<instance-ip>:8080/predict/1
 ```

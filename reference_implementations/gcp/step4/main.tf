@@ -154,7 +154,7 @@ resource "google_vertex_ai_featurestore" "default" {
 }
 
 resource "google_vertex_ai_featurestore_entitytype" "data_entity" {
-  name = "featurestore_data_entity"
+  name = "data_entity"
   featurestore = google_vertex_ai_featurestore.default.id
 
   monitoring_config {
@@ -167,7 +167,7 @@ resource "google_vertex_ai_featurestore_entitytype" "data_entity" {
 }
 
 resource "google_vertex_ai_featurestore_entitytype_feature" "data_feature" {
-  name     = "featurestore_data_entity_data_feature"
+  name     = "data_feature"
   entitytype = google_vertex_ai_featurestore_entitytype.data_entity.id
   value_type = "STRING"
 }
