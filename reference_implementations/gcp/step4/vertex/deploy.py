@@ -12,7 +12,7 @@ if model_id is not None:
 else:
     model = aiplatform.Model.upload(
         display_name="bart-large-mnli",
-        artifact_uri="gs://ai-deployment-bootcamp",
+        artifact_uri="gs://ai-deployment-bootcamp/model",
         serving_container_image_uri="us-west2-docker.pkg.dev/ai-deployment-bootcamp/ai-deployment-bootcamp-docker-repo/ai-deployment-bootcamp-inferencer:latest",
         serving_container_environment_variables={
             "HF_TASK": "zero-shot-classification",
