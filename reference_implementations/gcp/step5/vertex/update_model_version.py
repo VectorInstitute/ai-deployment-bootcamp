@@ -3,6 +3,7 @@ import logging
 
 from google.cloud import aiplatform
 
+logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 
 model_id = sys.argv[1]
@@ -32,10 +33,17 @@ endpoint = aiplatform.models.Endpoint(
 deployed_models = endpoint.list_models()
 
 logger.info("Deploying new model version...")
-endpoint.deploy(model_v2)
+endpoint.deploy(
+    model_v2,
+    traffic_percentage=100,
+    machine_type="n1-standard-4",
+    accelerator_type="NVIDIA_TESLA_T4",
+    accelerator_count=1,
+    max_replica_count=10,
+)
 
 for deployed_model in deployed_models:
-    model_id = deployed_model.getId()
+    model_id = deployed_model.id
     logger.info(f"Undeploying model id {model_id}")
     endpoint.undeploy(model_id)
 
