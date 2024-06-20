@@ -1,12 +1,17 @@
 import sys
+import logging
 
 from google.cloud import aiplatform
 
+logger = logging.getLogger(__name__)
 
 model_id = sys.argv[1]
 artifact_uri = sys.argv[2]
+endpoint_id = sys.argv[3]
 
 aiplatform.init(project="ai-deployment-bootcamp", location="us-west2")
+
+logger.info("Uploading new model version...")
 
 model = aiplatform.Model(f"projects/761003357790/locations/us-west2/models/{model_id}")
 model_v2 = aiplatform.Model.upload(
@@ -19,3 +24,19 @@ model_v2 = aiplatform.Model.upload(
         "VERTEX_CPR_WEB_CONCURRENCY": 1,
     },
 )
+
+endpoint = aiplatform.models.Endpoint(
+    endpoint_name=f"projects/761003357790/locations/us-west2/endpoints/{endpoint_id}",
+)
+
+deployed_models = endpoint.list_models()
+
+logger.info("Deploying new model version...")
+endpoint.deploy(model_v2)
+
+for deployed_model in deployed_models:
+    model_id = deployed_model.getId()
+    logger.info(f"Undeploying model id {model_id}")
+    endpoint.undeploy(model_id)
+
+logger.info("Done.")

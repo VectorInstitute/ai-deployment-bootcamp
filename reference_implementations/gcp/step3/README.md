@@ -8,9 +8,14 @@ gcloud auth configure-docker us-west2-docker.pkg.dev
 
 CD into `vertex/`, make a venv and install dependencies. 
 
-Then run `push_image.py` (will take a while to finish and required docker to be running):
+Then run `build_and_push_image.py` (will take a while to finish and required docker to be running):
 ```shell
-python -m push_image
+python -m build_and_push_image
+```
+
+***NOTE:*** Alternatively, if the image is already built, you can just push it with:
+```shell
+docker push us-west2-docker.pkg.dev/ai-deployment-bootcamp/ai-deployment-bootcamp-docker-repo/ai-deployment-bootcamp-inferencer:latest
 ```
 
 Pull the model from huggingface (will take some time):
