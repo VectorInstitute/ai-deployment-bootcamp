@@ -69,7 +69,7 @@ tail -f /var/log/syslog
 
 To check FastAPI logs, run:
 ```shell
-tail -f /ai-deployment-bootcamp/reference_implementations/gcp/step5/ml-api/ml-api.log
+tail -f /ai-deployment-bootcamp/reference_implementations/gcp/step6/ml-api/ml-api.log
 ```
 
 Once `ml-api` instance is up and FastAPI is running, the endpoint will be available at port 8080.
