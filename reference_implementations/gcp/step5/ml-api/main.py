@@ -56,14 +56,3 @@ async def predict(data_id: str):
     response = prediction_client.raw_predict(request)
 
     return {"data": data, "prediction": json.loads(response.data)}
-
-
-@app.get("/add_data_point/{data_point}")
-async def add_data_point(data_point: str):
-    with Session(app.db_engine) as session:
-        data = Data(data=data_point)
-
-        session.add_all([data])
-        session.commit()
-
-        return {"data": data.to_dict()}
