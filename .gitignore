@@ -1,0 +1,12 @@
+/.idea
+
+*venv/
+
+*.terraform.lock.hcl
+*.terraform/
+*terraform.tfstate
+*.terraform.tfstate.lock.info
+*terraform.tfstate.backup
+
+*bart-large-mnli/
+*ml-api.zip
