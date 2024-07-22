@@ -27,6 +27,15 @@ provider "google" {
   region  = var.region
 }
 
+### BEGIN ENABLING APIS
+
+resource "google_project_service" "cloudfunctions" {
+  project = var.project
+  service = "cloudresourcemanager.googleapis.com"
+}
+
+### END ENABLING APIS
+
 resource "google_service_account" "sa" {
   account_id = "${var.project}-sa"
   display_name = "${var.project} Service Account"

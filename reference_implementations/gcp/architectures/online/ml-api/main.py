@@ -10,12 +10,16 @@ from google.cloud import aiplatform_v1, aiplatform
 
 
 ENDPOINT_ID = os.getenv("ENDPOINT_ID")
+ZONE = os.getenv("ZONE")
+REGION = f"{ZONE.split('-')[0]}-{ZONE.split('-')[1]}"
+PROJECT_ID = os.getenv("PROJECT_ID")
+PROJECT_NUMBER = os.getenv("PROJECT_NUMBER")
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[Any, Any]:
     """Set up function for app startup and shutdown."""
-    aiplatform.init(project="ai-deployment-bootcamp", location="us-west2")
+    aiplatform.init(project=PROJECT_ID, location=REGION)
     app.entity_type = aiplatform.featurestore.EntityType(
         featurestore_id="featurestore",
         entity_type_name="data_entity",
@@ -39,7 +43,7 @@ async def predict(data_id: str):
     # make prediction
     prediction_client = aiplatform_v1.PredictionServiceClient(
         client_options={
-            "api_endpoint": "us-west2-aiplatform.googleapis.com",
+            "api_endpoint": f"{REGION}-aiplatform.googleapis.com",
         }
     )
 
@@ -52,7 +56,7 @@ async def predict(data_id: str):
 
     http_body = httpbody_pb2.HttpBody(data=json_data.encode("utf-8"), content_type="application/json")
     request = aiplatform_v1.RawPredictRequest(
-        endpoint=f"projects/761003357790/locations/us-west2/endpoints/{ENDPOINT_ID}",
+        endpoint=f"projects/{PROJECT_NUMBER}/locations/{REGION}/endpoints/{ENDPOINT_ID}",
         http_body=http_body,
     )
     response = prediction_client.raw_predict(request)

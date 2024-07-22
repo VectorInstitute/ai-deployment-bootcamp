@@ -32,6 +32,10 @@ provider "google" {
   region  = var.region
 }
 
+data "google_project" "project" {
+  project_id = var.project
+}
+
 resource "google_service_account" "sa" {
   account_id = "${var.project}-sa"
   display_name = "${var.project} Service Account"
@@ -127,7 +131,10 @@ resource "google_cloudfunctions2_function" "default" {
     all_traffic_on_latest_revision = true
     service_account_email          = google_service_account.sa.email
     environment_variables = {
-      ENDPOINT = var.endpoint
+      ENDPOINT_ID    = var.endpoint
+      PROJECT_ID     = var.project
+      PROJECT_NUMBER = data.google_project.project.number
+      REGION         = var.region
     }
   }
 
