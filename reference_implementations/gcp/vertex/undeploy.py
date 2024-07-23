@@ -2,12 +2,17 @@ import sys
 
 from google.cloud import aiplatform
 
-endpoint_id = sys.argv[1] if len(sys.argv) > 1 else None
+from utils import load_tfvars, get_project_number
 
-aiplatform.init(project="ai-deployment-bootcamp", location="us-west2")
+# Load TF Vars
+TFVARS_PATH = "../architectures/terraform.tfvars"
+tfvars = load_tfvars(TFVARS_PATH)
+project_number = get_project_number(tfvars["project"])
+
+aiplatform.init(project=tfvars["project"], location=tfvars["region"])
 
 endpoint = aiplatform.models.Endpoint(
-    endpoint_name=f"projects/761003357790/locations/us-west2/endpoints/{endpoint_id}",
+    endpoint_name=f"projects/{project_number}/locations/{tfvars['region']}/endpoints/{tfvars['endpoint']}",
 )
 
 endpoint.undeploy_all()

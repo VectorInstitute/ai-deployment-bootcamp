@@ -1,19 +1,24 @@
 variable "region" {
-    type = string
+  type = string
 }
 variable "project" {
-    type = string
+  type = string
 }
 
 variable "user" {
-    type = string
+  type = string
 }
 
 variable "endpoint" {
-    type = string
+  type = string
 }
 
 ### BEGIN ENABLING APIS
+
+resource "google_project_service" "cloudfunctions" {
+  project = var.project
+  service = "cloudresourcemanager.googleapis.com"
+}
 
 resource "google_project_service" "cloudfunctions" {
   project = var.project

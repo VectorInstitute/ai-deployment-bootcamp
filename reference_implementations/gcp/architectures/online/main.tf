@@ -1,25 +1,25 @@
 variable "region" {
-    type = string
+  type = string
 }
 variable "project" {
-    type = string
+  type = string
 }
 
 variable "user" {
-    type = string
+  type = string
 }
 
 variable "scriptpath" {
-    type = string
+  type    = string
+  default = "./ml-api/startup.sh"
 }
 
 variable "publickeypath" {
-    type = string
-    default = "~/.ssh/id_rsa.pub"
+  type = string
 }
 
 variable "endpoint" {
-    type = string
+  type = string
 }
 
 provider "google" {

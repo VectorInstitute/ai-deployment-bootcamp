@@ -46,16 +46,15 @@ Alternatively, you can pass in the model id and version if it has already been d
 python -m deploy 1562581944930140160 1
 ```
 
-It will output the endpoint resource name at the end. Get the endpoint ID from it and set it to the
-`endpoint` variable in `terraform.tfvars`.
+It will automatically update the endpoint ID in the `../terraform.tfvars` file.
 
 # Terraform
 
 From inside the folder with the terraform files:
 ```shell
-terraform init
-terraform plan
-terraform apply
+terraform init -var-file=../terraform.tfvars
+terraform plan -var-file=../terraform.tfvars
+terraform apply -var-file=../terraform.tfvars
 ```
 
 It will build the rest of the pipeline based on the configuration in the terraform file.
