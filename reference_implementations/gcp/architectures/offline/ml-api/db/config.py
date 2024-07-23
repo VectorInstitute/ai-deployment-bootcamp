@@ -1,20 +1,13 @@
-import os
-
 from google.cloud.sql.connector import Connector, IPTypes
 import pg8000
 from sqlalchemy import create_engine, Engine
 
 
-PROJECT_ID = os.environ.get("PROJECT_ID")
-REGION = os.environ.get("REGION")
-DB_PASSWORD = os.environ.get("DB_PASSWORD")
-
-
-def get_engine() -> Engine:
-    db_conn_name = f"{PROJECT_ID}:{REGION}:{PROJECT_ID}-db-instance"
+def get_engine(project: str, region: str, db_password: str) -> Engine:
+    db_conn_name = f"{project}:{region}:{project}-db-instance"
     db_user = "root"
-    db_pass = DB_PASSWORD
-    db_name = f"{PROJECT_ID}-database"
+    db_pass = db_password
+    db_name = f"{project}-database"
 
     connector = Connector()
 

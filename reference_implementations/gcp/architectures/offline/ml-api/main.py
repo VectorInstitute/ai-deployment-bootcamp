@@ -14,6 +14,7 @@ ENDPOINT_ID = os.environ.get("ENDPOINT_ID")
 PROJECT_ID = os.environ.get("PROJECT_ID")
 PROJECT_NUMBER = os.environ.get("PROJECT_NUMBER")
 REGION = os.environ.get("REGION")
+DB_PASSWORD = os.environ.get("DB_PASSWORD")
 
 
 def process(event, context):
@@ -65,7 +66,7 @@ def process(event, context):
         prediction = response.data.decode("utf-8")
         print(f"Prediction: {prediction}")
 
-        db_engine = get_engine()
+        db_engine = get_engine(PROJECT_ID, REGION, DB_PASSWORD)
         Base.metadata.create_all(db_engine)
 
         with Session(db_engine) as session:

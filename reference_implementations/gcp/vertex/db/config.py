@@ -2,14 +2,12 @@ from google.cloud.sql.connector import Connector, IPTypes
 import pg8000
 from sqlalchemy import create_engine, Engine
 
-from util import TFVARS
 
-
-def get_engine() -> Engine:
-    db_conn_name = f"{TFVARS['project']}:{TFVARS['region']}:{TFVARS['project']}-db-instance"
+def get_engine(project: str, region: str, db_password: str) -> Engine:
+    db_conn_name = f"{project}:{region}:{project}-db-instance"
     db_user = "root"
-    db_pass = TFVARS["db_password"]
-    db_name = f"{TFVARS['project']}-database"
+    db_pass = db_password
+    db_name = f"{project}-database"
 
     connector = Connector()
 

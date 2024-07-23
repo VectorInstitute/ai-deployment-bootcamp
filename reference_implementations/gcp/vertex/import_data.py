@@ -9,7 +9,7 @@ from db.entities import Data
 from constants import TFVARS
 
 
-db_engine = get_engine()
+db_engine = get_engine(TFVARS["project"], TFVARS["region"], TFVARS["db_password"])
 with Session(db_engine) as session:
     data_list = session.query(Data).all()
 

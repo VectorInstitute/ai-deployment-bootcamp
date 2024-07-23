@@ -1,7 +1,6 @@
 project = "ai-deployment-bootcamp"
 region = "us-west2"
 user = "marcelolotif"
-scriptpath = "./ml-api/startup.sh"
 publickeypath = "~/.ssh/id_rsa.pub"
 db_password = "t9CHsm3a"
-endpoint = "8678599209663856640"
+endpoint = "1513372202517397504"

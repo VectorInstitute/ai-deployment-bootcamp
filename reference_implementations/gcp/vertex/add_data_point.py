@@ -5,7 +5,10 @@ from sqlalchemy.orm import Session
 from db.config import get_engine
 from db.entities import Base, Data
 
-db_engine = get_engine()
+from constants import TFVARS
+
+
+db_engine = get_engine(TFVARS["project"], TFVARS["region"], TFVARS["db_password"])
 Base.metadata.create_all(db_engine)
 
 with Session(db_engine) as session:
