@@ -33,7 +33,7 @@ provider "google" {
 
 ### BEGIN ENABLING APIS
 
-resource "google_project_service" "cloudfunctions" {
+resource "google_project_service" "cloudresourcemanager" {
   project = var.project
   service = "cloudresourcemanager.googleapis.com"
 }
