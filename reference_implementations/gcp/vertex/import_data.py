@@ -6,12 +6,8 @@ from sqlalchemy.orm import Session
 
 from db.config import get_engine
 from db.entities import Data
-from utils import load_tfvars
+from constants import TFVARS
 
-
-# Load TF Vars
-TFVARS_PATH = "../architectures/terraform.tfvars"
-tfvars = load_tfvars(TFVARS_PATH)
 
 db_engine = get_engine()
 with Session(db_engine) as session:
@@ -25,7 +21,7 @@ for data in data_list:
 
 df_to_import = pd.DataFrame(data_to_import, index=indexes)
 
-aiplatform.init(project=tfvars["project"], location=tfvars["region"])
+aiplatform.init(project=TFVARS["project"], location=TFVARS["region"])
 
 entity_type = aiplatform.featurestore.EntityType(
     featurestore_id="featurestore",

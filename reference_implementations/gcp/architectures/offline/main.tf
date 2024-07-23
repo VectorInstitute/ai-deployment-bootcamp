@@ -13,6 +13,10 @@ variable "endpoint" {
   type = string
 }
 
+variable "db_password" {
+  type = string
+}
+
 ### BEGIN ENABLING APIS
 
 resource "google_project_service" "cloudfunctions" {
@@ -68,7 +72,7 @@ resource "google_sql_database_instance" "master" {
   name                = "${var.project}-db-instance"
   database_version    = "POSTGRES_14"
   region              = var.region
-  root_password       = "t9CHsm3a"
+  root_password       = var.db_password
   deletion_protection = false
   settings {
     tier = "db-custom-2-7680"
@@ -140,6 +144,7 @@ resource "google_cloudfunctions2_function" "default" {
       PROJECT_ID     = var.project
       PROJECT_NUMBER = data.google_project.project.number
       REGION         = var.region
+      DB_PASSWORD    = var.db_password
     }
   }
 

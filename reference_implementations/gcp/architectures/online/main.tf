@@ -22,6 +22,10 @@ variable "endpoint" {
   type = string
 }
 
+variable "db_password" {
+  type = string
+}
+
 provider "google" {
   project = var.project
   region  = var.region
@@ -69,7 +73,7 @@ resource "google_sql_database_instance" "master" {
   name                = "${var.project}-db-instance"
   database_version    = "POSTGRES_14"
   region              = var.region
-  root_password       = "t9CHsm3a"
+  root_password       = var.db_password
   deletion_protection = false
   settings {
     tier = "db-custom-2-7680"
