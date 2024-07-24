@@ -28,6 +28,13 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
+You should also make a public-private key pair:
+- On Windows, use [this guide](https://www.purdue.edu/science/scienceit/ssh-keys-windows.html).
+- On Max and Linux, use [this guide](https://mdl.library.utoronto.ca/technology/tutorials/generating-ssh-key-pairs-mac).
+
+Set the value of the `publickeypath` variable in the [`architectures/terraform.tfvars`](architectures/terraform.tfvars)
+file to the path of the public key that has just been created.
+
 ## Build and deploy the model
 
 If you are using the model from this reference implementation, just follow the instructions below.
