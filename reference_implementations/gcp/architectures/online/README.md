@@ -1,72 +1,49 @@
-# Vertex
+# Online Inferencing Architecture
 
-Configure docker on google cloud:
-```shell
-gcloud artifacts repositories create ai-deployment-bootcamp-docker-repo --repository-format docker --location us-west2
-gcloud auth configure-docker us-west2-docker.pkg.dev
-```
+This guide will help you set up an online (real-time) inferencing architecture.
+At the end of this guide you should have an architecture reflecting the diagram below:
 
-CD into `vertex/`, make a venv and install dependencies. 
+![diagram.png](diagram.png)
 
-Then run `build_and_push_image.py` (will take a while to finish and required docker to be running):
-```shell
-python -m build_and_push_image
-```
-
-***NOTE:*** Alternatively, if the image is already built, you can just push it with:
-```shell
-docker push us-west2-docker.pkg.dev/ai-deployment-bootcamp/ai-deployment-bootcamp-docker-repo/ai-deployment-bootcamp-inferencer:latest
-```
-
-Pull the model from huggingface (will take some time):
-```shell
-brew install git-lfs  # or download from https://git-lfs.com/
-git lfs install
-git clone https://huggingface.co/facebook/bart-large-mnli
-```
-
-Compress the model:
-```shell
-cd bart-large-mnli/
-tar zcvf model.tar.gz --exclude flax_model.msgpack --exclude pytorch_model.bin --exclude rust_model.ot *
-```
-
-Upload model to google cloud storage:
-```shell
-gcloud config set storage/parallel_composite_upload_enabled True
-gcloud storage cp model.tar.gz gs://ai-deployment-bootcamp
-```
-
-Make sure you're logged in, then deploy the model and create an endpoint (will take some time):
-```shell
-python -m deploy
-```
-Alternatively, you can pass in the model id and version if it has already been deployed:
-```shell
-python -m deploy 1562581944930140160 1
-```
-
-It will automatically update the endpoint ID in the `../terraform.tfvars` file.
+The ML API component will expose a `/predict` endpoint which will take a record id,
+retrieve that record from the Feature Store and send it as input to the ML Servers.
+The servers will make an inference with the input data and return a prediction, which
+will be returned as the result of the ML API request.
 
 # Terraform
 
-From inside the folder with the terraform files:
+If this is your first time running this, or if you have made significant changes to
+the terraform scripts, you should first initialize terraform:
+
 ```shell
 terraform init -var-file=../terraform.tfvars
+```
+
+To see what are the components being created by terraform, run a plan:
+```shell
 terraform plan -var-file=../terraform.tfvars
+```
+
+Ultimately, trigger the creation of the architecture components by apploying the
+terraform plan:
+
+```shell
 terraform apply -var-file=../terraform.tfvars
 ```
 
-It will output the public ip address and also the SSH command. 
+It will output the public ip address of the ML API and also the SSH command to access
+and inspect/debug it. 
 
-# FastAPI
+# ML API
 
-To check the system logs, ssh into the machine and run:
+The ML API is a [FastAPI](https://fastapi.tiangolo.com/) server running on port `8080`.
+To check the system logs and see if the server has been set up correctly, SSH into the
+machine and run:
 ```shell
 tail -f /var/log/syslog
 ```
 
-To check FastAPI logs, run:
+Once it has fininsh setting up, it will start the FastAPI server. To check its logs, run:
 ```shell
 tail -f /ml-api/ml-api.log
 ```
@@ -75,23 +52,37 @@ Once `ml-api` instance is up and FastAPI is running, the endpoint will be availa
 
 # Feature Store
 
-Add some data points to the SQL database, use the `add_data_point` script:
+To add a data point to the SQL database, use the `add_data_point` script:
 ```shell
 python -m add_data_point "test data point 1"
-python -m add_data_point "test data point 2"
-python -m add_data_point "test data point 3"
 ```
 
-To import those data points into the feature store:
+To import those data points into the Feature Store, run `import_data`:
 ```shell
 python -m import_data
 ```
 
+It will output the data points that are currently stored in the feature store
+with their respective IDs.
+
 Now the data is ready to be pulled for prediction.
 
-# Predict
+# Run a prediction
 
-To run a prediction in a data point, call the `/predict` endpoint with the data point id:
+To run a prediction in a data point, make a `GET` request to the `/predict`
+endpoint using the data point id:
 ```shell
 http://<instance-ip>:8080/predict/1
+```
+
+You should receive a JSON response like the following:
+```shell
+{
+  "data": "test input data 1",
+  "prediction": {
+    "sequence": "test input data 1",
+    "labels": ["mobile","website","account access","billing"],
+    "scores": [0.3478688597679138,0.3263603150844574,0.1976030468940735,0.1281677484512329]
+  }
+}
 ```
