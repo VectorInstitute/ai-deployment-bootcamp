@@ -1,0 +1,22 @@
+[
+    {
+        "name": "feature_id",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "name": "feature_data",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "name": "feature_timestamp",
+        "type": "TIMESTAMP",
+        "mode": "NULLABLE"
+    },
+    {
+        "name": "feature_version",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    }
+]

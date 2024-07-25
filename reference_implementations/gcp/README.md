@@ -94,10 +94,10 @@ python -m deploy 1562581944930140160 1
 
 It will automatically update the endpoint ID in the `architectures/terraform.tfvars` file.
 
-## Make the inferencing architecture
+## Make the Inferencing Architecture
 
 From here you have two choices:
 - If you need an online (real-time) inferencing architecture, please follow the
-[architectures/online/README.md](architectures/online/README.md) guide
+[architectures/online/README.md](architectures/online/README.md) guide.
 - If you need an offline (batch) inferencing architecture, please follow the
-[architectures/offline/README.md](architectures/offline/README.md) guide
+[architectures/offline/README.md](architectures/offline/README.md) guide.

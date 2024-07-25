@@ -1,7 +1,6 @@
-import time
+from datetime import datetime
 
-import pandas as pd
-from google.cloud import aiplatform
+from google.cloud import bigquery
 from sqlalchemy.orm import Session
 
 from db.config import get_engine
@@ -14,24 +13,24 @@ with Session(db_engine) as session:
     data_list = session.query(Data).all()
 
 data_to_import = []
-indexes = []
+data_ids = []
 for data in data_list:
-    data_to_import.append({"data_feature": data.data})
-    indexes.append(str(data.id))
+    data_to_import.append({
+        "feature_id": data.id,
+        "feature_data": data.data,
+        "feature_timestamp": datetime.now().isoformat(timespec="seconds"),
+        "feature_version": "v1",
+    })
+    data_ids.append(str(data.id))
 
-df_to_import = pd.DataFrame(data_to_import, index=indexes)
+bq_client = bigquery.Client()
+feature_store_table = bq_client.get_table(f"{TFVARS['project']}.feature_store_dataset.feature_store_table")
+errors = bq_client.insert_rows_json(feature_store_table, data_to_import)
 
-aiplatform.init(project=TFVARS["project"], location=TFVARS["region"])
-
-entity_type = aiplatform.featurestore.EntityType(
-    featurestore_id="featurestore",
-    entity_type_name="data_entity",
-)
-
-entity_type.preview.write_feature_values(instances=df_to_import)
-
-print("Waiting 30s for the changes to propagate...")
-time.sleep(30)
-
-print("Saved data:")
-print(entity_type.read(entity_ids=indexes))
+if errors is not None and len(errors) > 0:
+    print(f"Error saving data to feature store: {errors}")
+else:
+    query = bq_client.query(f"SELECT * from {feature_store_table} where feature_id in ({str(data_ids)[1:-1]})")
+    print("Saved data:")
+    for r in query.result():
+        print(r)

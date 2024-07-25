@@ -4,7 +4,7 @@ import os
 import traceback
 
 from google.api import httpbody_pb2
-from google.cloud import aiplatform_v1, aiplatform
+from google.cloud import aiplatform_v1, bigquery
 from sqlalchemy.orm import Session
 
 from db.config import get_engine
@@ -24,22 +24,21 @@ def process(event, context):
         event_data = base64.b64decode(event["data"]).decode("utf-8")
         print(f"Decoded event data: {event_data}")
         json_data = json.loads(event_data)
-        data_id = json_data['id']
+        data_id = json_data["id"]
 
         print(f"Pulling data with id {data_id} from the feature store")
 
-        aiplatform.init(project=PROJECT_ID, location=REGION)
-        entity_type = aiplatform.featurestore.EntityType(
-            featurestore_id="featurestore",
-            entity_type_name="data_entity",
-        )
+        bq_client = bigquery.Client()
+        feature_store_table = bq_client.get_table(f"{PROJECT_ID}.feature_store_dataset.feature_store_table")
+        query = bq_client.query(f"SELECT * from {feature_store_table} where feature_id = '{data_id}'")
+        results = query.result()
+        results_list = [r for r in results] if results is not None else []
 
-        result_df = entity_type.read(entity_ids=[data_id])
-        data = result_df.get("data_feature")[0]
-
-        if data is None:
+        if len(results_list) == 0:
             print(f"[ERROR] Data with id {data_id} not found in the feature store.")
             return
+
+        data = results_list[0]
 
         prediction_client = aiplatform_v1.PredictionServiceClient(
             client_options={
@@ -48,7 +47,7 @@ def process(event, context):
         )
 
         input_data = {
-            "sequences": data,
+            "sequences": data.get("feature_data"),
             "candidate_labels": ["mobile", "website", "billing", "account access"],
         }
 
