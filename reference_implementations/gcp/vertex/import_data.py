@@ -1,30 +1,27 @@
 from datetime import datetime
 
 from google.cloud import bigquery
-from sqlalchemy.orm import Session
 
-from db.config import get_engine
-from db.entities import Data
 from constants import TFVARS
 
+project_prefix = TFVARS["project"].replace("-", "_")
 
-db_engine = get_engine(TFVARS["project"], TFVARS["region"], TFVARS["db_password"])
-with Session(db_engine) as session:
-    data_list = session.query(Data).all()
+bq_client = bigquery.Client()
+data_table = bq_client.get_table(f"{TFVARS['project']}.{project_prefix}_database.data_table")
+query = bq_client.query(f"SELECT * from {data_table}")
 
 data_to_import = []
 data_ids = []
-for data in data_list:
+for data_point in query.result():
     data_to_import.append({
-        "feature_id": data.id,
-        "feature_data": data.data,
+        "feature_id": data_point.get("id"),
+        "feature_data": data_point.get("data"),
         "feature_timestamp": datetime.now().isoformat(timespec="seconds"),
         "feature_version": "v1",
     })
-    data_ids.append(str(data.id))
+    data_ids.append(str(data_point.get("id")))
 
-bq_client = bigquery.Client()
-feature_store_table = bq_client.get_table(f"{TFVARS['project']}.feature_store_dataset.feature_store_table")
+feature_store_table = bq_client.get_table(f"{TFVARS['project']}.{project_prefix}_feature_store.feature_store_table")
 errors = bq_client.insert_rows_json(feature_store_table, data_to_import)
 
 if errors is not None and len(errors) > 0:

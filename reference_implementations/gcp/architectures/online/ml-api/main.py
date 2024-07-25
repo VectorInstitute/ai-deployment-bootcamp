@@ -14,13 +14,14 @@ ZONE = os.getenv("ZONE")
 REGION = f"{ZONE.split('-')[0]}-{ZONE.split('-')[1]}"
 PROJECT_ID = os.getenv("PROJECT_ID")
 PROJECT_NUMBER = os.getenv("PROJECT_NUMBER")
+PROJECT_PREFIX = PROJECT_ID.replace("-", "_")
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[Any, Any]:
     """Set up function for app startup and shutdown."""
     app.bq_client = bigquery.Client()
-    app.feature_store_table = app.bq_client.get_table(f"{PROJECT_ID}.feature_store_dataset.feature_store_table")
+    app.feature_store_table = app.bq_client.get_table(f"{PROJECT_ID}.{PROJECT_PREFIX}_feature_store.feature_store_table")
     yield
 
 

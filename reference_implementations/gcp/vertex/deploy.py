@@ -44,7 +44,7 @@ save_tfvars(TFVARS, TFVARS_PATH)
 # with an NVIDIA Tesla T4, 4 vCPUs and 15 GB of RAM memory
 deployed_endpoint = model.deploy(
     endpoint=endpoint,
-    machine_type="n1-standard-4",
+    machine_type="n1-standard-2",
     # GPU type
     accelerator_type="NVIDIA_TESLA_T4",
     # Number of GPUs

@@ -1,6 +1,7 @@
 variable "region" {
   type = string
 }
+
 variable "project" {
   type = string
 }
@@ -17,8 +18,13 @@ variable "db_password" {
   type = string
 }
 
-variable "feature_store_schema" {
+variable "schemas_folder" {
   type = string
+}
+
+locals {
+  # cleaning up project name to make it friendly to some IDs
+  project_prefix = replace(var.project, "-", "_")
 }
 
 ### BEGIN ENABLING APIS
@@ -49,15 +55,11 @@ data "google_project" "project" {
   project_id = var.project
 }
 
+### BEGIN SERVICE ACCOUNT PERMISSIONS
+
 resource "google_service_account" "sa" {
   account_id = "${var.project}-sa"
   display_name = "${var.project} Service Account"
-}
-
-resource "google_project_iam_member" "cloud_sql_client" {
-  project = var.project
-  role    = "roles/cloudsql.client"
-  member  = "serviceAccount:${google_service_account.sa.email}"
 }
 
 resource "google_project_iam_member" "storage_object_viewer" {
@@ -84,27 +86,25 @@ resource "google_project_iam_member" "big_query_data_viewer" {
   member  = "serviceAccount:${google_service_account.sa.email}"
 }
 
-resource "google_sql_database_instance" "master" {
-  name                = "${var.project}-db-instance"
-  database_version    = "POSTGRES_14"
-  region              = var.region
-  root_password       = var.db_password
+### END SERVICE ACCOUNT PERMISSIONS
+
+resource "google_bigquery_dataset" "database" {
+  dataset_id    = "${local.project_prefix}_database"
+  location      = "US"
+}
+
+resource "google_bigquery_table" "data_table" {
   deletion_protection = false
-  settings {
-    tier = "db-custom-2-7680"
-  }
+  dataset_id          = google_bigquery_dataset.database.dataset_id
+  table_id            = "data_table"
+  schema              = file("${var.schemas_folder}/data.json")
 }
 
-resource "google_sql_user" "db_user" {
-  name     = "root"
-  instance = google_sql_database_instance.master.name
-  password = "t9CHsm3a"
-}
-
-resource "google_sql_database" "database" {
-  name       = "${var.project}-database"
-  instance   = google_sql_database_instance.master.name
-  depends_on = [ google_sql_user.db_user ]
+resource "google_bigquery_table" "predictions_table" {
+  deletion_protection = false
+  dataset_id          = google_bigquery_dataset.database.dataset_id
+  table_id            = "predictions_table"
+  schema              = file("${var.schemas_folder}/predictions.json")
 }
 
 resource "google_pubsub_topic" "input_queue" {
@@ -178,14 +178,14 @@ resource "google_cloudfunctions2_function" "default" {
   ]
 }
 
-resource "google_bigquery_dataset" "feature_store_dataset" {
-  dataset_id    = "feature_store_dataset"
+resource "google_bigquery_dataset" "feature_store" {
+  dataset_id    = "${local.project_prefix}_feature_store"
   location      = "US"
 }
 
 resource "google_bigquery_table" "feature_store_table" {
   deletion_protection = false
-  dataset_id          = google_bigquery_dataset.feature_store_dataset.dataset_id
+  dataset_id          = google_bigquery_dataset.feature_store.dataset_id
   table_id            = "feature_store_table"
-  schema              = file(var.feature_store_schema)
+  schema              = file("${var.schemas_folder}/feature_store.json")
 }
