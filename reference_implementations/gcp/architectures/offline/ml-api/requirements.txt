@@ -1,0 +1,5 @@
+google-cloud-aiplatform[prediction]==1.55.0
+pandas==2.2.2
+cloud-sql-python-connector==1.9.2
+SQLAlchemy==2.0.30
+pg8000==1.31.2
