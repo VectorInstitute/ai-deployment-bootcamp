@@ -5,17 +5,17 @@
         "mode": "NULLABLE"
     },
     {
-        "name": "feature_data",
-        "type": "STRING",
-        "mode": "NULLABLE"
-    },
-    {
         "name": "feature_timestamp",
         "type": "TIMESTAMP",
         "mode": "NULLABLE"
     },
     {
-        "name": "feature_version",
+        "name": "version",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "name": "data",
         "type": "STRING",
         "mode": "NULLABLE"
     }

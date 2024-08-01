@@ -1,4 +1,4 @@
-google-cloud-aiplatform[prediction]==1.55.0
+google-cloud-aiplatform[prediction]==1.60.0
 google-cloud-pubsub==2.22.0
 torch==2.2.0
 transformers==4.38.1

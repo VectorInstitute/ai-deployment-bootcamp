@@ -54,8 +54,10 @@ cd bart-large-mnli/
 tar zcvf model.tar.gz --exclude flax_model.msgpack --exclude pytorch_model.bin --exclude rust_model.ot *
 ```
 
-Upload the compressed model to Google Cloud Storage:
+Create a bucket and upload the compressed model to it (make sure to match the project ID and
+region to the ones you have set up on the `terraform.tfvars` file):
 ```shell
+gcloud storage buckets create gs://ai-deployment-bootcamp --location=us-west2
 gcloud config set storage/parallel_composite_upload_enabled True
 gcloud storage cp model.tar.gz gs://ai-deployment-bootcamp
 ```

@@ -14,10 +14,6 @@ variable "endpoint" {
   type = string
 }
 
-variable "db_password" {
-  type = string
-}
-
 variable "schemas_folder" {
   type = string
 }
@@ -160,7 +156,6 @@ resource "google_cloudfunctions2_function" "default" {
       PROJECT_ID     = var.project
       PROJECT_NUMBER = data.google_project.project.number
       REGION         = var.region
-      DB_PASSWORD    = var.db_password
     }
   }
 

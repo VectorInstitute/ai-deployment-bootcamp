@@ -22,10 +22,6 @@ variable "endpoint" {
   type = string
 }
 
-variable "db_password" {
-  type = string
-}
-
 variable "schemas_folder" {
   type = string
 }

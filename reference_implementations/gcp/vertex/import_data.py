@@ -15,9 +15,9 @@ data_ids = []
 for data_point in query.result():
     data_to_import.append({
         "feature_id": data_point.get("id"),
-        "feature_data": data_point.get("data"),
         "feature_timestamp": datetime.now().isoformat(timespec="seconds"),
-        "feature_version": "v1",
+        "data": data_point.get("data"),
+        "version": "v1",
     })
     data_ids.append(str(data_point.get("id")))
 
