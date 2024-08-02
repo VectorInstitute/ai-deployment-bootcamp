@@ -4,7 +4,7 @@ import os
 import traceback
 
 from google.api import httpbody_pb2
-from google.cloud import aiplatform_v1, bigquery
+from google.cloud import aiplatform_v1, aiplatform, bigquery
 
 
 ENDPOINT_ID = os.environ.get("ENDPOINT_ID")
@@ -26,17 +26,18 @@ def process(event, context):
 
         print(f"Pulling data with id {data_id} from the feature store")
 
-        bq_client = bigquery.Client()
-        feature_store_table = bq_client.get_table(f"{PROJECT_ID}.{PROJECT_PREFIX}_feature_store.feature_store_table")
-        query = bq_client.query(f"SELECT * from {feature_store_table} where feature_id = '{data_id}'")
-        results = query.result()
-        results_list = [r for r in results] if results is not None else []
+        aiplatform.init(project=PROJECT_ID, location=REGION)
+        entity_type = aiplatform.featurestore.EntityType(
+            featurestore_id="featurestore",
+            entity_type_name="data_entity",
+        )
 
-        if len(results_list) == 0:
+        result_df = entity_type.read(entity_ids=[data_id])
+        data = result_df.get("data_feature")[0]
+
+        if data is None:
             print(f"[ERROR] Data with id {data_id} not found in the feature store.")
             return
-
-        data = results_list[0]
 
         prediction_client = aiplatform_v1.PredictionServiceClient(
             client_options={
@@ -45,7 +46,7 @@ def process(event, context):
         )
 
         input_data = {
-            "sequences": data.get("feature_data"),
+            "sequences": data,
             "candidate_labels": ["mobile", "website", "billing", "account access"],
         }
 
@@ -63,6 +64,7 @@ def process(event, context):
         prediction = response.data.decode("utf-8")
         print(f"Prediction: {prediction}")
 
+        bq_client = bigquery.Client()
         predictions_table = bq_client.get_table(f"{PROJECT_ID}.{PROJECT_PREFIX}_database.predictions_table")
 
         last_id_query = bq_client.query(f"SELECT max(id) as max_id from {predictions_table}")

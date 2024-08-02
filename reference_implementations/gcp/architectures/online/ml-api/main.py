@@ -6,7 +6,7 @@ from typing import Any, AsyncGenerator
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from google.api import httpbody_pb2
-from google.cloud import aiplatform_v1, bigquery
+from google.cloud import aiplatform_v1, aiplatform
 
 
 ENDPOINT_ID = os.getenv("ENDPOINT_ID")
@@ -20,8 +20,11 @@ PROJECT_PREFIX = PROJECT_ID.replace("-", "_")
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[Any, Any]:
     """Set up function for app startup and shutdown."""
-    app.bq_client = bigquery.Client()
-    app.feature_store_table = app.bq_client.get_table(f"{PROJECT_ID}.{PROJECT_PREFIX}_feature_store.feature_store_table")
+    aiplatform.init(project=PROJECT_ID, location=REGION)
+    app.entity_type = aiplatform.featurestore.EntityType(
+        featurestore_id="featurestore",
+        entity_type_name="data_entity",
+    )
     yield
 
 
@@ -31,14 +34,11 @@ app = FastAPI(lifespan=lifespan)
 @app.get("/predict/{data_id}")
 async def predict(data_id: str):
     # fetch data
-    query = app.bq_client.query(f"SELECT * from {app.feature_store_table} where feature_id = '{data_id}'")
-    results = query.result()
-    results_list = [r for r in results] if results is not None else []
+    result_df = app.entity_type.read(entity_ids=[data_id])
+    data = result_df.get("data_feature")[0]
 
-    if len(results_list) == 0:
+    if data is None:
         return JSONResponse(content={"error": f"Data with id {data_id} not found."}, status_code=400)
-
-    data = results_list[0]
 
     # make prediction
     prediction_client = aiplatform_v1.PredictionServiceClient(
@@ -48,7 +48,7 @@ async def predict(data_id: str):
     )
 
     input_data = {
-        "sequences": data.get("feature_data"),
+        "sequences": data,
         "candidate_labels": ["mobile", "website", "billing", "account access"],
     }
 

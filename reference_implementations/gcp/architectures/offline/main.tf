@@ -6,6 +6,10 @@ variable "project" {
   type = string
 }
 
+variable "short_project_prefix" {
+  type = string
+}
+
 variable "user" {
   type = string
 }
@@ -54,7 +58,7 @@ data "google_project" "project" {
 ### BEGIN SERVICE ACCOUNT PERMISSIONS
 
 resource "google_service_account" "sa" {
-  account_id = "${var.project}-sa"
+  account_id = "${var.short_project_prefix}-sa"
   display_name = "${var.project} Service Account"
 }
 
@@ -173,14 +177,32 @@ resource "google_cloudfunctions2_function" "default" {
   ]
 }
 
-resource "google_bigquery_dataset" "feature_store" {
-  dataset_id    = "${local.project_prefix}_feature_store"
-  location      = "US"
+resource "google_vertex_ai_featurestore" "default" {
+  name   = "featurestore"
+  region = var.region
+
+  online_serving_config {
+    fixed_node_count = 1
+  }
+
+  force_destroy = true
 }
 
-resource "google_bigquery_table" "feature_store_table" {
-  deletion_protection = false
-  dataset_id          = google_bigquery_dataset.feature_store.dataset_id
-  table_id            = "feature_store_table"
-  schema              = file("${var.schemas_folder}/feature_store.json")
+resource "google_vertex_ai_featurestore_entitytype" "data_entity" {
+  name         = "data_entity"
+  featurestore = google_vertex_ai_featurestore.default.id
+
+  monitoring_config {
+    snapshot_analysis {
+      disabled = false
+    }
+  }
+
+  depends_on = [google_vertex_ai_featurestore.default]
+}
+
+resource "google_vertex_ai_featurestore_entitytype_feature" "data_feature" {
+  name       = "data_feature"
+  entitytype = google_vertex_ai_featurestore_entitytype.data_entity.id
+  value_type = "STRING"
 }
