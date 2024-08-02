@@ -1,0 +1,5 @@
+boto3==1.34.149
+docker_py==1.10.6
+fastapi==0.111.1
+transformers==4.38.1
+uvicorn==0.30.3
