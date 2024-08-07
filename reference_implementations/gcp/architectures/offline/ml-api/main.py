@@ -28,7 +28,7 @@ def process(event, context):
 
         aiplatform.init(project=PROJECT_ID, location=REGION)
         entity_type = aiplatform.featurestore.EntityType(
-            featurestore_id="featurestore",
+            featurestore_id=f"{PROJECT_PREFIX}_featurestore",
             entity_type_name="data_entity",
         )
 

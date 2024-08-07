@@ -22,7 +22,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[Any, Any]:
     """Set up function for app startup and shutdown."""
     aiplatform.init(project=PROJECT_ID, location=REGION)
     app.entity_type = aiplatform.featurestore.EntityType(
-        featurestore_id="featurestore",
+        featurestore_id=f"{PROJECT_PREFIX}_featurestore",
         entity_type_name="data_entity",
     )
     yield

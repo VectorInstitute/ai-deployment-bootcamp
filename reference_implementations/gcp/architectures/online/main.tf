@@ -165,7 +165,7 @@ resource "google_compute_instance" "ml-api-server" {
   name                      = "ml-api-vm"
   machine_type              = "e2-micro"
   zone                      = "${var.region}-a"
-  tags                      = ["sshfw","webserverfw"]
+  tags                      = ["sshfw", "webserverfw", "http-server"]
   allow_stopping_for_update = true
 
    
