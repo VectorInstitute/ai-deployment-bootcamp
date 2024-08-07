@@ -111,7 +111,7 @@ It will automatically update the endpoint ID in the `architectures/terraform.tfv
 
 To test if the endpoint is up and running, run the test script with some input data:
 ```shell
-python -m predictor.test "test input data"
+python -m test_endpoint "test input data"
 ```
 
 ## Make the Inferencing Architecture
