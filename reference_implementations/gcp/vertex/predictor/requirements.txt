@@ -1,8 +1,7 @@
 google-cloud-aiplatform[prediction]==1.60.0
+torch==2.2.0
 transformers==4.38.1
+accelerate==0.27.0
 pandas==2.0.3
-google-cloud-pubsub==2.22.0
-pytfvars==1.0.3
-python-hcl2==4.3.4
 
 numpy<2
