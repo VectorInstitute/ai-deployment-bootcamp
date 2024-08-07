@@ -29,6 +29,16 @@ locals {
 
 ### BEGIN ENABLING APIS
 
+resource "google_project_service" "run" {
+  project = var.project
+  service = "run.googleapis.com"
+}
+
+resource "google_project_service" "cloudbuild" {
+  project = var.project
+  service = "cloudbuild.googleapis.com"
+}
+
 resource "google_project_service" "cloudresourcemanager" {
   project = var.project
   service = "cloudresourcemanager.googleapis.com"
@@ -80,9 +90,9 @@ resource "google_project_iam_member" "big_query_user" {
   member  = "serviceAccount:${google_service_account.sa.email}"
 }
 
-resource "google_project_iam_member" "big_query_data_viewer" {
+resource "google_project_iam_member" "big_query_data_editor" {
   project = var.project
-  role    = "roles/bigquery.dataViewer"
+  role    = "roles/bigquery.dataEditor"
   member  = "serviceAccount:${google_service_account.sa.email}"
 }
 
@@ -171,6 +181,8 @@ resource "google_cloudfunctions2_function" "default" {
   }
 
   depends_on = [
+    google_project_service.run,
+    google_project_service.cloudbuild,
     google_project_service.cloudfunctions,
     google_project_service.eventarc,
     google_storage_bucket_object.ml_api,

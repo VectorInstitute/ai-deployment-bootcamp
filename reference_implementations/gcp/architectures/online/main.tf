@@ -79,18 +79,6 @@ resource "google_project_iam_member" "compute_instances_get" {
   member  = "serviceAccount:${google_service_account.sa.email}"
 }
 
-resource "google_project_iam_member" "big_query_user" {
-  project = var.project
-  role    = "roles/bigquery.user"
-  member  = "serviceAccount:${google_service_account.sa.email}"
-}
-
-resource "google_project_iam_member" "big_query_data_viewer" {
-  project = var.project
-  role    = "roles/bigquery.dataViewer"
-  member  = "serviceAccount:${google_service_account.sa.email}"
-}
-
 ### END SERVICE ACCOUNT PERMISSIONS
 
 resource "google_bigquery_dataset" "database" {

@@ -68,9 +68,11 @@ def process(event, context):
         predictions_table = bq_client.get_table(f"{PROJECT_ID}.{PROJECT_PREFIX}_database.predictions_table")
 
         last_id_query = bq_client.query(f"SELECT max(id) as max_id from {predictions_table}")
-        last_id = 0
+        last_id = None
         for lid in last_id_query.result():
             last_id = lid.get("max_id", 0)
+
+        last_id = last_id if last_id is not None else 0
 
         prediction_data = {"id": last_id + 1, "data_id": data_id, "prediction": prediction}
         errors = bq_client.insert_rows_json(predictions_table, [prediction_data])
