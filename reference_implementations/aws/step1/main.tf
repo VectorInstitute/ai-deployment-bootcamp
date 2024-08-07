@@ -1,3 +1,24 @@
+variable "region" {
+    type = string
+}
+variable "project" {
+    type = string
+}
+
+variable "user" {
+    type = string
+}
+
+
+variable "endpoint" {
+  type = string
+}
+
+variable "publickeypath" {
+  type = string  
+}
+
+
 terraform {
   required_providers {
     aws = {
@@ -9,7 +30,8 @@ terraform {
 
 provider "aws" {
   # Configuration options
-  region = "us-east-1"
+  region = var.region
+  profile = "default"
 }
 
 # EC2 instance
