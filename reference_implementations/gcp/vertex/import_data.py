@@ -22,7 +22,7 @@ df_to_import = pd.DataFrame(data_to_import, index=indexes)
 aiplatform.init(project=TFVARS["project"], location=TFVARS["region"])
 
 entity_type = aiplatform.featurestore.EntityType(
-    featurestore_id="featurestore",
+    featurestore_id=f"{project_prefix}_featurestore",
     entity_type_name="data_entity",
 )
 

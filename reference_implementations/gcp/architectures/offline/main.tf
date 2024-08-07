@@ -178,7 +178,7 @@ resource "google_cloudfunctions2_function" "default" {
 }
 
 resource "google_vertex_ai_featurestore" "default" {
-  name   = "featurestore"
+  name   = "${local.project_prefix}_featurestore"
   region = var.region
 
   online_serving_config {

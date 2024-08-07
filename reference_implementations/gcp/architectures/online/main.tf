@@ -50,6 +50,10 @@ provider "google" {
   region  = var.region
 }
 
+data "google_project" "project" {
+  project_id = var.project
+}
+
 ### BEGIN SERVICE ACCOUNT PERMISSIONS
 
 resource "google_service_account" "sa" {
@@ -204,7 +208,7 @@ output "ssh_access_via_ip" {
 }
 
 resource "google_vertex_ai_featurestore" "default" {
-  name   = "featurestore"
+  name   = "${local.project_prefix}_featurestore"
   region = var.region
 
   online_serving_config {

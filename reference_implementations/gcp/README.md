@@ -10,15 +10,16 @@ To run the GCP reference implementations, you must first install:
 - [Git LFS](https://git-lfs.com/)
     - Make sure to install it into your local git by running `git lfs install`
 
+Set your user name and project name variables on the [`architectures/terraform.tfvars`](architectures/terraform.tfvars)
+file. For this example, the project name will be `ai-deployment-bootcamp`.
+
 Make sure you have an account with GCP and are authenticated in the CLI by running:
 ```shell
 gcloud init
 gcloud auth login
 gcloud auth application-default login
+gcloud config set project ai-deployment-bootcamp
 ```
-
-Set your user name and project name variables on the [`architectures/terraform.tfvars`](architectures/terraform.tfvars)
-file. For this example, the project name will be `ai-deployment-bootcamp`.
 
 Next, go into the `vertex` folder, create a virtual environment and install the project requirements:
 ```shell
