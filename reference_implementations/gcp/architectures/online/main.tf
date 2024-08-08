@@ -1,7 +1,12 @@
 variable "region" {
   type = string
 }
+
 variable "project" {
+  type = string
+}
+
+variable "short_project_prefix" {
   type = string
 }
 
@@ -22,13 +27,13 @@ variable "endpoint" {
   type = string
 }
 
-variable "db_password" {
+variable "schemas_folder" {
   type = string
 }
 
-provider "google" {
-  project = var.project
-  region  = var.region
+locals {
+  # cleaning up project name to make it friendly to some IDs
+  project_prefix = replace(var.project, "-", "_")
 }
 
 ### BEGIN ENABLING APIS
@@ -40,15 +45,20 @@ resource "google_project_service" "cloudresourcemanager" {
 
 ### END ENABLING APIS
 
-resource "google_service_account" "sa" {
-  account_id = "${var.project}-sa"
-  display_name = "${var.project} Service Account"
+provider "google" {
+  project = var.project
+  region  = var.region
 }
 
-resource "google_project_iam_member" "cloud_sql_client" {
-  project = var.project
-  role    = "roles/cloudsql.client"
-  member  = "serviceAccount:${google_service_account.sa.email}"
+data "google_project" "project" {
+  project_id = var.project
+}
+
+### BEGIN SERVICE ACCOUNT PERMISSIONS
+
+resource "google_service_account" "sa" {
+  account_id = "${var.short_project_prefix}-sa"
+  display_name = "${var.project} Service Account"
 }
 
 resource "google_project_iam_member" "storage_object_viewer" {
@@ -69,27 +79,25 @@ resource "google_project_iam_member" "compute_instances_get" {
   member  = "serviceAccount:${google_service_account.sa.email}"
 }
 
-resource "google_sql_database_instance" "master" {
-  name                = "${var.project}-db-instance"
-  database_version    = "POSTGRES_14"
-  region              = var.region
-  root_password       = var.db_password
+### END SERVICE ACCOUNT PERMISSIONS
+
+resource "google_bigquery_dataset" "database" {
+  dataset_id    = "${local.project_prefix}_database"
+  location      = "US"
+}
+
+resource "google_bigquery_table" "data_table" {
   deletion_protection = false
-  settings {
-    tier = "db-custom-2-7680"
-  }
+  dataset_id          = google_bigquery_dataset.database.dataset_id
+  table_id            = "data_table"
+  schema              = file("${var.schemas_folder}/data.json")
 }
 
-resource "google_sql_user" "db_user" {
-  name     = "root"
-  instance = google_sql_database_instance.master.name
-  password = "t9CHsm3a"
-}
-
-resource "google_sql_database" "database" {
-  name      = "${var.project}-database"
-  instance  = google_sql_database_instance.master.name
-  depends_on = [ google_sql_user.db_user ]
+resource "google_bigquery_table" "predictions_table" {
+  deletion_protection = false
+  dataset_id          = google_bigquery_dataset.database.dataset_id
+  table_id            = "predictions_table"
+  schema              = file("${var.schemas_folder}/predictions.json")
 }
 
 resource "google_compute_firewall" "ssh" {
@@ -145,7 +153,7 @@ resource "google_compute_instance" "ml-api-server" {
   name                      = "ml-api-vm"
   machine_type              = "e2-micro"
   zone                      = "${var.region}-a"
-  tags                      = ["sshfw","webserverfw"]
+  tags                      = ["sshfw", "webserverfw", "http-server"]
   allow_stopping_for_update = true
 
    
@@ -188,7 +196,7 @@ output "ssh_access_via_ip" {
 }
 
 resource "google_vertex_ai_featurestore" "default" {
-  name   = "featurestore"
+  name   = "${local.project_prefix}_featurestore"
   region = var.region
 
   online_serving_config {
@@ -199,7 +207,7 @@ resource "google_vertex_ai_featurestore" "default" {
 }
 
 resource "google_vertex_ai_featurestore_entitytype" "data_entity" {
-  name = "data_entity"
+  name         = "data_entity"
   featurestore = google_vertex_ai_featurestore.default.id
 
   monitoring_config {
@@ -212,7 +220,7 @@ resource "google_vertex_ai_featurestore_entitytype" "data_entity" {
 }
 
 resource "google_vertex_ai_featurestore_entitytype_feature" "data_feature" {
-  name     = "data_feature"
+  name       = "data_feature"
   entitytype = google_vertex_ai_featurestore_entitytype.data_entity.id
   value_type = "STRING"
 }

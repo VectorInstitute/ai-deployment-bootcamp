@@ -24,7 +24,7 @@ To see what are the components being created by terraform, run a plan:
 terraform plan -var-file=../terraform.tfvars
 ```
 
-Ultimately, trigger the creation of the architecture components by apploying the
+Ultimately, trigger the creation of the architecture components by applying the
 terraform plan:
 
 ```shell
@@ -38,7 +38,7 @@ and inspect/debug it.
 
 The ML API is a [FastAPI](https://fastapi.tiangolo.com/) server running on port `8080`.
 To check the system logs and see if the server has been set up correctly, SSH into the
-machine and run:
+machine then run:
 ```shell
 tail -f /var/log/syslog
 ```

@@ -25,7 +25,7 @@ To see what are the components being created by terraform, run a plan:
 terraform plan -var-file=../terraform.tfvars
 ```
 
-Ultimately, trigger the creation of the architecture components by apploying the
+Ultimately, trigger the creation of the architecture components by applying the
 terraform plan:
 
 ```shell

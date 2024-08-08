@@ -14,6 +14,7 @@ ZONE = os.getenv("ZONE")
 REGION = f"{ZONE.split('-')[0]}-{ZONE.split('-')[1]}"
 PROJECT_ID = os.getenv("PROJECT_ID")
 PROJECT_NUMBER = os.getenv("PROJECT_NUMBER")
+PROJECT_PREFIX = PROJECT_ID.replace("-", "_")
 
 
 @asynccontextmanager
@@ -21,10 +22,9 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[Any, Any]:
     """Set up function for app startup and shutdown."""
     aiplatform.init(project=PROJECT_ID, location=REGION)
     app.entity_type = aiplatform.featurestore.EntityType(
-        featurestore_id="featurestore",
+        featurestore_id=f"{PROJECT_PREFIX}_featurestore",
         entity_type_name="data_entity",
     )
-
     yield
 
 

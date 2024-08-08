@@ -1,5 +1,3 @@
-import sys
-
 from google.cloud import aiplatform
 
 from constants import TFVARS, PROJECT_NUMBER

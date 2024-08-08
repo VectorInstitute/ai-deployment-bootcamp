@@ -1,30 +1,28 @@
 import time
 
 import pandas as pd
-from google.cloud import aiplatform
-from sqlalchemy.orm import Session
+from google.cloud import aiplatform, bigquery
 
-from db.config import get_engine
-from db.entities import Data
 from constants import TFVARS
 
+project_prefix = TFVARS["project"].replace("-", "_")
 
-db_engine = get_engine(TFVARS["project"], TFVARS["region"], TFVARS["db_password"])
-with Session(db_engine) as session:
-    data_list = session.query(Data).all()
+bq_client = bigquery.Client()
+data_table = bq_client.get_table(f"{TFVARS['project']}.{project_prefix}_database.data_table")
+query = bq_client.query(f"SELECT * from {data_table}")
 
 data_to_import = []
 indexes = []
-for data in data_list:
-    data_to_import.append({"data_feature": data.data})
-    indexes.append(str(data.id))
+for data in query.result():
+    data_to_import.append({"data_feature": data.get("data")})
+    indexes.append(str(data.get("id")))
 
 df_to_import = pd.DataFrame(data_to_import, index=indexes)
 
 aiplatform.init(project=TFVARS["project"], location=TFVARS["region"])
 
 entity_type = aiplatform.featurestore.EntityType(
-    featurestore_id="featurestore",
+    featurestore_id=f"{project_prefix}_featurestore",
     entity_type_name="data_entity",
 )
 

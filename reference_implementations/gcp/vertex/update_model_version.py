@@ -28,7 +28,7 @@ model_v2 = aiplatform.Model.upload(
 )
 
 endpoint = aiplatform.models.Endpoint(
-    endpoint_name=f"projects/761003357790/locations/us-west2/endpoints/{TFVARS['endpoint']}",
+    endpoint_name=f"projects/{PROJECT_NUMBER}/locations/{TFVARS['region']}/endpoints/{TFVARS['endpoint']}",
 )
 
 deployed_models = endpoint.list_models()
@@ -40,7 +40,7 @@ endpoint.deploy(
     machine_type="n1-standard-4",
     accelerator_type="NVIDIA_TESLA_T4",
     accelerator_count=1,
-    max_replica_count=10,
+    max_replica_count=1,
 )
 
 for deployed_model in deployed_models:

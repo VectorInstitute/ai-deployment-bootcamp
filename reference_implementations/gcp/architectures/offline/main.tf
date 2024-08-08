@@ -1,7 +1,12 @@
 variable "region" {
   type = string
 }
+
 variable "project" {
+  type = string
+}
+
+variable "short_project_prefix" {
   type = string
 }
 
@@ -13,11 +18,26 @@ variable "endpoint" {
   type = string
 }
 
-variable "db_password" {
+variable "schemas_folder" {
   type = string
 }
 
+locals {
+  # cleaning up project name to make it friendly to some IDs
+  project_prefix = replace(var.project, "-", "_")
+}
+
 ### BEGIN ENABLING APIS
+
+resource "google_project_service" "run" {
+  project = var.project
+  service = "run.googleapis.com"
+}
+
+resource "google_project_service" "cloudbuild" {
+  project = var.project
+  service = "cloudbuild.googleapis.com"
+}
 
 resource "google_project_service" "cloudresourcemanager" {
   project = var.project
@@ -45,15 +65,11 @@ data "google_project" "project" {
   project_id = var.project
 }
 
-resource "google_service_account" "sa" {
-  account_id = "${var.project}-sa"
-  display_name = "${var.project} Service Account"
-}
+### BEGIN SERVICE ACCOUNT PERMISSIONS
 
-resource "google_project_iam_member" "cloud_sql_client" {
-  project = var.project
-  role    = "roles/cloudsql.client"
-  member  = "serviceAccount:${google_service_account.sa.email}"
+resource "google_service_account" "sa" {
+  account_id = "${var.short_project_prefix}-sa"
+  display_name = "${var.project} Service Account"
 }
 
 resource "google_project_iam_member" "storage_object_viewer" {
@@ -68,27 +84,37 @@ resource "google_project_iam_member" "ai_platform_user" {
   member  = "serviceAccount:${google_service_account.sa.email}"
 }
 
-resource "google_sql_database_instance" "master" {
-  name                = "${var.project}-db-instance"
-  database_version    = "POSTGRES_14"
-  region              = var.region
-  root_password       = var.db_password
+resource "google_project_iam_member" "big_query_user" {
+  project = var.project
+  role    = "roles/bigquery.user"
+  member  = "serviceAccount:${google_service_account.sa.email}"
+}
+
+resource "google_project_iam_member" "big_query_data_editor" {
+  project = var.project
+  role    = "roles/bigquery.dataEditor"
+  member  = "serviceAccount:${google_service_account.sa.email}"
+}
+
+### END SERVICE ACCOUNT PERMISSIONS
+
+resource "google_bigquery_dataset" "database" {
+  dataset_id    = "${local.project_prefix}_database"
+  location      = "US"
+}
+
+resource "google_bigquery_table" "data_table" {
   deletion_protection = false
-  settings {
-    tier = "db-custom-2-7680"
-  }
+  dataset_id          = google_bigquery_dataset.database.dataset_id
+  table_id            = "data_table"
+  schema              = file("${var.schemas_folder}/data.json")
 }
 
-resource "google_sql_user" "db_user" {
-  name     = "root"
-  instance = google_sql_database_instance.master.name
-  password = "t9CHsm3a"
-}
-
-resource "google_sql_database" "database" {
-  name       = "${var.project}-database"
-  instance   = google_sql_database_instance.master.name
-  depends_on = [ google_sql_user.db_user ]
+resource "google_bigquery_table" "predictions_table" {
+  deletion_protection = false
+  dataset_id          = google_bigquery_dataset.database.dataset_id
+  table_id            = "predictions_table"
+  schema              = file("${var.schemas_folder}/predictions.json")
 }
 
 resource "google_pubsub_topic" "input_queue" {
@@ -144,7 +170,6 @@ resource "google_cloudfunctions2_function" "default" {
       PROJECT_ID     = var.project
       PROJECT_NUMBER = data.google_project.project.number
       REGION         = var.region
-      DB_PASSWORD    = var.db_password
     }
   }
 
@@ -156,6 +181,8 @@ resource "google_cloudfunctions2_function" "default" {
   }
 
   depends_on = [
+    google_project_service.run,
+    google_project_service.cloudbuild,
     google_project_service.cloudfunctions,
     google_project_service.eventarc,
     google_storage_bucket_object.ml_api,
@@ -163,7 +190,7 @@ resource "google_cloudfunctions2_function" "default" {
 }
 
 resource "google_vertex_ai_featurestore" "default" {
-  name   = "featurestore"
+  name   = "${local.project_prefix}_featurestore"
   region = var.region
 
   online_serving_config {

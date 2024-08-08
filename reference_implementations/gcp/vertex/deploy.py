@@ -1,14 +1,19 @@
+import logging
 import sys
 
-from google.cloud import aiplatform
+from google.cloud import aiplatform, bigquery
 from vertexai.resources.preview import ml_monitoring
 
 from constants import TFVARS, TFVARS_PATH, PROJECT_NUMBER, DOCKER_REPO_NAME, DOCKER_IMAGE_NAME, MODEL_NAME
 from utils import save_tfvars
 
 
-endpoint_display_name = f"bart-large-mnli_endpoint"
-bq_logging_dataset = "bart_large_mnli_monitoring"
+logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s: %(message)s")
+
+model_path = f"gs://{TFVARS['project']}-model/model"
+project_prefix = TFVARS["project"].replace("-", "_")
+endpoint_display_name = f"{project_prefix}_endpoint"
+bq_logging_dataset = f"{endpoint_display_name}_monitoring"
 bq_logging_table = f"bq://{TFVARS['project']}.{bq_logging_dataset}.req_resp"
 
 aiplatform.init(project=TFVARS["project"], location=TFVARS["region"])
@@ -21,13 +26,21 @@ if model_id is not None:
 else:
     model = aiplatform.Model.upload(
         display_name=MODEL_NAME,
-        artifact_uri=f"gs://{TFVARS['project']}/model",
+        artifact_uri=model_path,
         serving_container_image_uri=f"{TFVARS['region']}-docker.pkg.dev/{TFVARS['project']}/{DOCKER_REPO_NAME}/{DOCKER_IMAGE_NAME}:latest",
         serving_container_environment_variables={
             "HF_TASK": "zero-shot-classification",
             "VERTEX_CPR_WEB_CONCURRENCY": 1,
         },
     )
+
+# Create BigQuery logging table if it doesn't exist
+bq_client = bigquery.Client()
+dataset_ids = [dataset.dataset_id for dataset in list(bq_client.list_datasets())]
+if bq_logging_dataset not in dataset_ids:
+    bq_dataset = bigquery.Dataset(f"{TFVARS['project']}.{bq_logging_dataset}")
+    bq_dataset.location = "US"
+    bq_dataset = bq_client.create_dataset(bq_dataset, timeout=30)
 
 endpoint = aiplatform.Endpoint.create(
     display_name=endpoint_display_name,

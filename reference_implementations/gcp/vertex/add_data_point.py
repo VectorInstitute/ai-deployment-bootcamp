@@ -1,20 +1,26 @@
 import sys
 
-from sqlalchemy.orm import Session
-
-from db.config import get_engine
-from db.entities import Base, Data
+from google.cloud import bigquery
 
 from constants import TFVARS
 
+data = sys.argv[1]
 
-db_engine = get_engine(TFVARS["project"], TFVARS["region"], TFVARS["db_password"])
-Base.metadata.create_all(db_engine)
+bq_client = bigquery.Client()
+project_prefix = TFVARS["project"].replace("-", "_")
+data_table = bq_client.get_table(f"{TFVARS['project']}.{project_prefix}_database.data_table")
 
-with Session(db_engine) as session:
-    data = Data(data=sys.argv[1])
+last_id_query = bq_client.query(f"SELECT max(id) as max_id from {data_table}")
+last_id = None
+for lid in last_id_query.result():
+    last_id = lid.get("max_id", 0)
 
-    session.add_all([data])
-    session.commit()
+last_id = last_id if last_id is not None else 0
 
-    print(f"Data point added: {data.to_dict()}")
+data_point = {"id": last_id + 1, "data": data}
+errors = bq_client.insert_rows_json(data_table, [data_point])
+
+if errors is not None and len(errors) > 0:
+    print(f"Error saving data to table: {errors}")
+else:
+    print(f"Data point added: {data_point}")
