@@ -1,5 +1,5 @@
 google-cloud-aiplatform[prediction]==1.60.0
-transformers==4.38.1
+transformers==4.44.0
 pandas==2.0.3
 google-cloud-pubsub==2.22.0
 pytfvars==1.0.3

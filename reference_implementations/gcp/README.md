@@ -49,7 +49,7 @@ For your own model, you can customize the instructions as needed
 ### 1. Build
 
 First, one some other location in your machine, clone the `bart-large-mnli` repo which contains
-the model from huggingface (it will take some time to donwload it):
+the model from huggingface (it will take some time to download it):
 ```shell
 git clone https://huggingface.co/facebook/bart-large-mnli
 ```

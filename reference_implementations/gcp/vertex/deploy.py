@@ -10,7 +10,7 @@ from utils import save_tfvars
 
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s: %(message)s")
 
-model_path = f"gs://{TFVARS['project']}-model/model"
+model_path = f"gs://{TFVARS['project']}-model/llama"
 project_prefix = TFVARS["project"].replace("-", "_")
 endpoint_display_name = f"{project_prefix}_endpoint"
 bq_logging_dataset = f"{endpoint_display_name}_monitoring"
@@ -25,11 +25,11 @@ if model_id is not None:
     model = aiplatform.Model(f"projects/{PROJECT_NUMBER}/locations/{TFVARS['region']}/models/{model_id}@{model_version}")
 else:
     model = aiplatform.Model.upload(
-        display_name=MODEL_NAME,
+        display_name="stored-llama",
         artifact_uri=model_path,
         serving_container_image_uri=f"{TFVARS['region']}-docker.pkg.dev/{TFVARS['project']}/{DOCKER_REPO_NAME}/{DOCKER_IMAGE_NAME}:latest",
         serving_container_environment_variables={
-            "HF_TASK": "zero-shot-classification",
+            "HF_TASK": "text-generation",
             "VERTEX_CPR_WEB_CONCURRENCY": 1,
         },
     )
