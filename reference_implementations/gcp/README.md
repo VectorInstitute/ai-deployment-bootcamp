@@ -109,6 +109,11 @@ python -m deploy 1562581944930140160 1
 
 It will automatically update the endpoint ID in the `architectures/terraform.tfvars` file.
 
+To test if the endpoint is up and running, run the test script with some input data:
+```shell
+python -m test_endpoint "test input data"
+```
+
 ## Make the Inferencing Architecture
 
 From here you have two choices:
