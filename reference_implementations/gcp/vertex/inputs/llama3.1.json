@@ -1,0 +1,7 @@
+{
+    "prompt": "What is a car?",
+    "max_tokens": 50,
+    "temperature": 1.0,
+    "top_p": 1.0,
+    "top_k": 1
+}

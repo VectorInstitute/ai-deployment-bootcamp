@@ -8,9 +8,14 @@ from constants import TFVARS, TFVARS_PATH, PROJECT_NUMBER, DOCKER_REPO_NAME, DOC
 from utils import save_tfvars
 
 
+model_id = sys.argv[1] if len(sys.argv) > 1 else None
+model_version = sys.argv[2] if len(sys.argv) > 2 else "default"
+
+model_name = "bart-large-mnli"
+hf_task = "zero-shot-classification"
+
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s: %(message)s")
 
-model_path = f"gs://{TFVARS['project']}-model/llama"
 project_prefix = TFVARS["project"].replace("-", "_")
 endpoint_display_name = f"{project_prefix}_endpoint"
 bq_logging_dataset = f"{endpoint_display_name}_monitoring"
@@ -18,18 +23,16 @@ bq_logging_table = f"bq://{TFVARS['project']}.{bq_logging_dataset}.req_resp"
 
 aiplatform.init(project=TFVARS["project"], location=TFVARS["region"])
 
-model_id = sys.argv[1] if len(sys.argv) > 1 else None
-model_version = sys.argv[2] if len(sys.argv) > 2 else "default"
 
 if model_id is not None:
     model = aiplatform.Model(f"projects/{PROJECT_NUMBER}/locations/{TFVARS['region']}/models/{model_id}@{model_version}")
 else:
     model = aiplatform.Model.upload(
-        display_name="stored-llama",
-        artifact_uri=model_path,
+        display_name=model_name,
+        artifact_uri=f"gs://{TFVARS['project']}-model/{model_name}",
         serving_container_image_uri=f"{TFVARS['region']}-docker.pkg.dev/{TFVARS['project']}/{DOCKER_REPO_NAME}/{DOCKER_IMAGE_NAME}:latest",
         serving_container_environment_variables={
-            "HF_TASK": "text-generation",
+            "HF_TASK": hf_task,
             "VERTEX_CPR_WEB_CONCURRENCY": 1,
         },
     )
@@ -66,7 +69,7 @@ deployed_endpoint = model.deploy(
     max_replica_count=1,
 )
 
-print(f"Endpoint resource name: {deployed_endpoint.resource_name}")
+print("Endpoint ID:", endpoint.name)
 
 model_monitoring_schema = ml_monitoring.spec.ModelMonitoringSchema(
     feature_fields=[
