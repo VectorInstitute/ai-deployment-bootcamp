@@ -75,12 +75,12 @@ endpoint using the data point id:
 http://<instance-ip>:8080/predict/1
 ```
 
-You should receive a JSON response like the following:
+You should receive a JSON response like the following (for the bart-large-mnli model):
 ```shell
 {
-  "data": "test input data 1",
+  "data": "test data point 1",
   "prediction": {
-    "sequence": "test input data 1",
+    "sequence": "test data point 1",
     "labels": ["mobile","website","account access","billing"],
     "scores": [0.3478688597679138,0.3263603150844574,0.1976030468940735,0.1281677484512329]
   }

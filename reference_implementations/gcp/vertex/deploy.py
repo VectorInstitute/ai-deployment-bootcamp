@@ -52,8 +52,9 @@ endpoint = aiplatform.Endpoint.create(
     request_response_logging_bq_destination_table=bq_logging_table,
 )
 
-# Saving the endpoint id in the tfvars
+# Saving the endpoint id and model name in the tfvars
 TFVARS["endpoint"] = endpoint.name
+TFVARS["model"] = model_name
 save_tfvars(TFVARS, TFVARS_PATH)
 
 # we will use the n1-standard-4 from the N1-Series that comes with GPU acceleration

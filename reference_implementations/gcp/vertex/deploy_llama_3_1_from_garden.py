@@ -13,7 +13,7 @@ aiplatform.init(project=TFVARS["project"], location=TFVARS["region"])
 model_id = sys.argv[1] if len(sys.argv) > 1 else None
 model_version = sys.argv[2] if len(sys.argv) > 2 else "default"
 
-model_name = "llama-from-garden"
+model_name = "llama3.1"
 
 if model_id is not None:
     model = aiplatform.Model(f"projects/{PROJECT_NUMBER}/locations/{TFVARS['region']}/models/{model_id}@{model_version}")
@@ -57,8 +57,9 @@ service_account = create_service_account_with_roles(
 
 endpoint = aiplatform.Endpoint.create(display_name=f"{TFVARS['project']}-llama-garden-endpoint")
 
-# Saving the endpoint id in the tfvars
+# Saving the endpoint id and model name in the tfvars
 TFVARS["endpoint"] = endpoint.name
+TFVARS["model"] = model_name
 save_tfvars(TFVARS, TFVARS_PATH)
 
 model.deploy(

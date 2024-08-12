@@ -59,12 +59,12 @@ python -m publish "{\"id\": \"1\"}"
 
 The ML API should be kicked off and a prediction should be added to the database
 once it has been processed by the ML Servers. The prediction should be a JSON string
-in the format below:
+in the format below (for the bart-large-mnli model):
 ```shell
 {
-  "data": "test input data 1",
+  "data": "test data point 1",
   "prediction": {
-    "sequence": "test input data 1",
+    "sequence": "test data point 1",
     "labels": ["mobile","website","account access","billing"],
     "scores": [0.3478688597679138,0.3263603150844574,0.1976030468940735,0.1281677484512329]
   }
