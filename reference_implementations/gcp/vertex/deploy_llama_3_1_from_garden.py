@@ -3,8 +3,8 @@ import sys
 
 from google.cloud import aiplatform
 
-from constants import TFVARS, PROJECT_NUMBER
-from utils import create_service_account_with_roles
+from constants import TFVARS, TFVARS_PATH, PROJECT_NUMBER
+from utils import create_service_account_with_roles, save_tfvars
 
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s: %(message)s")
 
@@ -12,6 +12,8 @@ aiplatform.init(project=TFVARS["project"], location=TFVARS["region"])
 
 model_id = sys.argv[1] if len(sys.argv) > 1 else None
 model_version = sys.argv[2] if len(sys.argv) > 2 else "default"
+
+model_name = "llama-from-garden"
 
 if model_id is not None:
     model = aiplatform.Model(f"projects/{PROJECT_NUMBER}/locations/{TFVARS['region']}/models/{model_id}@{model_version}")
@@ -37,7 +39,7 @@ else:
 
     env_vars = {"MODEL_ID": model_path, "DEPLOY_SOURCE": "notebook"}
     model = aiplatform.Model.upload(
-        display_name="llama-from-garden",
+        display_name=model_name,
         serving_container_image_uri="us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/pytorch-vllm-serve:20240726_1329_RC00",
         serving_container_args=vllm_args,
         serving_container_ports=[7080],
@@ -54,6 +56,10 @@ service_account = create_service_account_with_roles(
 )
 
 endpoint = aiplatform.Endpoint.create(display_name=f"{TFVARS['project']}-llama-garden-endpoint")
+
+# Saving the endpoint id in the tfvars
+TFVARS["endpoint"] = endpoint.name
+save_tfvars(TFVARS, TFVARS_PATH)
 
 model.deploy(
     endpoint=endpoint,

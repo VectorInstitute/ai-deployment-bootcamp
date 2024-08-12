@@ -4,7 +4,7 @@ import sys
 from google.cloud import aiplatform, bigquery
 from vertexai.resources.preview import ml_monitoring
 
-from constants import TFVARS, TFVARS_PATH, PROJECT_NUMBER, DOCKER_REPO_NAME, DOCKER_IMAGE_NAME, MODEL_NAME
+from constants import TFVARS, TFVARS_PATH, PROJECT_NUMBER, DOCKER_REPO_NAME, DOCKER_IMAGE_NAME
 from utils import save_tfvars
 
 
@@ -69,8 +69,6 @@ deployed_endpoint = model.deploy(
     max_replica_count=1,
 )
 
-print("Endpoint ID:", endpoint.name)
-
 model_monitoring_schema = ml_monitoring.spec.ModelMonitoringSchema(
     feature_fields=[
         ml_monitoring.spec.FieldSchema(name="id", data_type="integer"),
@@ -99,3 +97,4 @@ print(f"Model monitor {model_monitor.name} created.")
 
 # TODO run the model monitoring jobs
 
+print("Endpoint ID:", endpoint.name)
