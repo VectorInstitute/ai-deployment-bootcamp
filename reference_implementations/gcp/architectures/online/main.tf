@@ -27,6 +27,10 @@ variable "endpoint" {
   type = string
 }
 
+variable "model" {
+  type = string
+}
+
 variable "schemas_folder" {
   type = string
 }
@@ -174,6 +178,7 @@ resource "google_compute_instance" "ml-api-server" {
   metadata = {
     ssh-keys = "${var.user}:${file(var.publickeypath)}"
     endpoint = var.endpoint
+    model    = var.model
   }
 
   metadata_startup_script = file(var.scriptpath)

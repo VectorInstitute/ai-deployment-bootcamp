@@ -1,7 +1,9 @@
 import json
 import os
 from contextlib import asynccontextmanager
-from typing import Any, AsyncGenerator
+from copy import deepcopy
+from enum import Enum
+from typing import Dict, List, Any, AsyncGenerator
 
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
@@ -10,6 +12,7 @@ from google.cloud import aiplatform_v1, aiplatform
 
 
 ENDPOINT_ID = os.getenv("ENDPOINT_ID")
+MODEL_NAME = os.getenv("ENDPOINT_ID")
 ZONE = os.getenv("ZONE")
 REGION = f"{ZONE.split('-')[0]}-{ZONE.split('-')[1]}"
 PROJECT_ID = os.getenv("PROJECT_ID")
@@ -47,10 +50,10 @@ async def predict(data_id: str):
         }
     )
 
-    input_data = {
-        "sequences": data,
-        "candidate_labels": ["mobile", "website", "billing", "account access"],
-    }
+    if MODEL_NAME not in Models.list():
+        raise Exception(f"Model {MODEL_NAME} not supported! Supported models: {Models.list()}")
+
+    input_data = Models.get_input_for_model(Models[MODEL_NAME], data)
 
     json_data = json.dumps(input_data)
 
@@ -62,3 +65,40 @@ async def predict(data_id: str):
     response = prediction_client.raw_predict(request)
 
     return {"data": data, "prediction": json.loads(response.data)}
+
+
+class Models(Enum):
+    LLAMA_3_1 = "llama3.1"
+    BART_MNLI_LARGE = "bart_mnli_large"
+
+    @classmethod
+    def list(cls) -> List[str]:
+        return [model.value for model in Models]
+
+    @classmethod
+    def get_input_for_model(cls, model: "Model", input: str) -> Dict[str, Any]:
+        if model == Models.LLAMA_3_1:
+            input_dict = deepcopy(LLAMA_3_1_INPUT_TEMPLATE)
+            input_dict["prompt"] = input
+            return input_dict
+
+        if model == Models.BART_MNLI_LARGE:
+            input_dict = deepcopy(BART_MNLI_INPUT_TEMPLATE)
+            input_dict["sequences"] = input
+            return input_dict
+
+        raise Exception(f"Model{model.value} not supported!")
+
+
+LLAMA_3_1_INPUT_TEMPLATE = {
+    "prompt": None,
+    "max_tokens": 50,
+    "temperature": 1.0,
+    "top_p": 1.0,
+    "top_k": 1
+}
+
+BART_MNLI_INPUT_TEMPLATE = {
+    "sequences": None,
+    "candidate_labels": ["mobile", "website", "billing", "account access"]
+}
