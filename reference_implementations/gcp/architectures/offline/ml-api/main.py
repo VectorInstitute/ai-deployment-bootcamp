@@ -49,11 +49,7 @@ def process(event, context):
             }
         )
 
-        if MODEL_NAME not in Models.list():
-            raise Exception(f"Model {MODEL_NAME} not supported! Supported models: {Models.list()}")
-
-        input_data = Models.get_input_for_model(Models[MODEL_NAME], data)
-
+        input_data = Models.get_input_for_model_name(MODEL_NAME, data)
         json_input_data = json.dumps(input_data)
 
         print(f"Sending input data to the endpoint id {ENDPOINT_ID}: {json_input_data}")
@@ -100,19 +96,18 @@ class Models(Enum):
         return [model.value for model in Models]
 
     @classmethod
-    def get_input_for_model(cls, model: "Model", input: str) -> Dict[str, Any]:
-        if model == Models.LLAMA_3_1:
+    def get_input_for_model_name(cls, model_name: str, input: str) -> Dict[str, Any]:
+        if model_name == Models.LLAMA_3_1.value:
             input_dict = deepcopy(LLAMA_3_1_INPUT_TEMPLATE)
             input_dict["prompt"] = input
             return input_dict
 
-        if model == Models.BART_MNLI_LARGE:
+        if model_name == Models.BART_MNLI_LARGE.value:
             input_dict = deepcopy(BART_MNLI_INPUT_TEMPLATE)
             input_dict["sequences"] = input
             return input_dict
 
-        raise Exception(f"Model{model.value} not supported!")
-
+        raise Exception(f"Model{model_name} not supported! Supported models: {Models.list()}")
 
 
 LLAMA_3_1_INPUT_TEMPLATE = {

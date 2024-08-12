@@ -40,7 +40,8 @@ python -m deploy_llama_3_1_from_garden 1562581944930140160 1
 ```
 
 At the end, it will output the endpoint ID. It will automatically update the endpoint ID
-in the `architectures/terraform.tfvars` file so the rest of the pipeline can use it.
+and the model name in the `architectures/terraform.tfvars` file so the rest of the
+pipeline can use it.
 
 To test if the endpoint is up and running, run the test script with the test input data
 for this model and the endpoint ID:

@@ -12,7 +12,7 @@ from google.cloud import aiplatform_v1, aiplatform
 
 
 ENDPOINT_ID = os.getenv("ENDPOINT_ID")
-MODEL_NAME = os.getenv("ENDPOINT_ID")
+MODEL_NAME = os.getenv("MODEL_NAME")
 ZONE = os.getenv("ZONE")
 REGION = f"{ZONE.split('-')[0]}-{ZONE.split('-')[1]}"
 PROJECT_ID = os.getenv("PROJECT_ID")
@@ -50,11 +50,7 @@ async def predict(data_id: str):
         }
     )
 
-    if MODEL_NAME not in Models.list():
-        raise Exception(f"Model {MODEL_NAME} not supported! Supported models: {Models.list()}")
-
-    input_data = Models.get_input_for_model(Models[MODEL_NAME], data)
-
+    input_data = Models.get_input_for_model_name(MODEL_NAME, data)
     json_data = json.dumps(input_data)
 
     http_body = httpbody_pb2.HttpBody(data=json_data.encode("utf-8"), content_type="application/json")
@@ -76,18 +72,18 @@ class Models(Enum):
         return [model.value for model in Models]
 
     @classmethod
-    def get_input_for_model(cls, model: "Model", input: str) -> Dict[str, Any]:
-        if model == Models.LLAMA_3_1:
+    def get_input_for_model_name(cls, model_name: str, input: str) -> Dict[str, Any]:
+        if model_name == Models.LLAMA_3_1.value:
             input_dict = deepcopy(LLAMA_3_1_INPUT_TEMPLATE)
             input_dict["prompt"] = input
             return input_dict
 
-        if model == Models.BART_MNLI_LARGE:
+        if model_name == Models.BART_MNLI_LARGE.value:
             input_dict = deepcopy(BART_MNLI_INPUT_TEMPLATE)
             input_dict["sequences"] = input
             return input_dict
 
-        raise Exception(f"Model{model.value} not supported!")
+        raise Exception(f"Model{model_name} not supported! Supported models: {Models.list()}")
 
 
 LLAMA_3_1_INPUT_TEMPLATE = {
