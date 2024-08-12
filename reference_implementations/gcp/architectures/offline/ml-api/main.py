@@ -11,7 +11,7 @@ from google.cloud import aiplatform_v1, aiplatform, bigquery
 
 
 ENDPOINT_ID = os.environ.get("ENDPOINT_ID")
-MODEL_NAME = os.environ.get("MODEL_NAME")
+MODEL_NAME = os.environ.get("MODEL")
 PROJECT_ID = os.environ.get("PROJECT_ID")
 PROJECT_NUMBER = os.environ.get("PROJECT_NUMBER")
 REGION = os.environ.get("REGION")
