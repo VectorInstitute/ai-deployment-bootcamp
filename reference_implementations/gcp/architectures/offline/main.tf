@@ -18,6 +18,10 @@ variable "endpoint" {
   type = string
 }
 
+variable "model" {
+  type = string
+}
+
 variable "schemas_folder" {
   type = string
 }
@@ -170,6 +174,7 @@ resource "google_cloudfunctions2_function" "default" {
       PROJECT_ID     = var.project
       PROJECT_NUMBER = data.google_project.project.number
       REGION         = var.region
+      MODEL          = var.model
     }
   }
 

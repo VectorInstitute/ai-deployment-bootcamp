@@ -3,13 +3,16 @@ import logging
 
 from google.cloud import aiplatform
 
-from constants import TFVARS, PROJECT_NUMBER, DOCKER_REPO_NAME, DOCKER_IMAGE_NAME, MODEL_NAME
+from constants import TFVARS, PROJECT_NUMBER, DOCKER_REPO_NAME, DOCKER_IMAGE_NAME
 
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 
-model_id = sys.argv[1]
+parent_model_id = sys.argv[1]
 artifact_uri = sys.argv[2]
+
+model_name = "bart-large-mnli"
+hf_task = "zero-shot-classification"
 
 aiplatform.init(project=TFVARS["project"], location=TFVARS["region"])
 
@@ -18,11 +21,11 @@ logger.info("Uploading new model version...")
 model = aiplatform.Model(f"projects/{PROJECT_NUMBER}/locations/{TFVARS['region']}/models/{model_id}")
 model_v2 = aiplatform.Model.upload(
     parent_model=model.resource_name,
-    display_name=MODEL_NAME,
+    display_name=model_name,
     artifact_uri=artifact_uri,
     serving_container_image_uri=f"{TFVARS['region']}-docker.pkg.dev/{TFVARS['project']}/{DOCKER_REPO_NAME}/{DOCKER_IMAGE_NAME}:latest",
     serving_container_environment_variables={
-        "HF_TASK": "zero-shot-classification",
+        "HF_TASK": hf_task,
         "VERTEX_CPR_WEB_CONCURRENCY": 1,
     },
 )

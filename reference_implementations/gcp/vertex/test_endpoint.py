@@ -1,4 +1,3 @@
-import json
 import logging
 import sys
 
@@ -9,14 +8,11 @@ from constants import TFVARS, PROJECT_NUMBER
 
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s: %(message)s")
 
-data = sys.argv[1]
+input_data_path = sys.argv[1]
+endpoint = sys.argv[2] if len(sys.argv) >= 3 else TFVARS["endpoint"]
 
-
-input_data = {
-    "sequences": data,
-    "candidate_labels": ["mobile", "website", "billing", "account access"],
-}
-json_data = json.dumps(input_data)
+with open(input_data_path, "r") as file:
+    input_data = file.read()
 
 print(f"Sending input data to endpoint {TFVARS['endpoint']}:\n{input_data}")
 
@@ -26,9 +22,9 @@ prediction_client = aiplatform_v1.PredictionServiceClient(
     }
 )
 
-http_body = httpbody_pb2.HttpBody(data=json_data.encode("utf-8"), content_type="application/json")
+http_body = httpbody_pb2.HttpBody(data=input_data.encode("utf-8"), content_type="application/json")
 request = aiplatform_v1.RawPredictRequest(
-    endpoint=f"projects/{PROJECT_NUMBER}/locations/{TFVARS['region']}/endpoints/{TFVARS['endpoint']}",
+    endpoint=f"projects/{PROJECT_NUMBER}/locations/{TFVARS['region']}/endpoints/{endpoint}",
     http_body=http_body,
 )
 
