@@ -39,11 +39,11 @@ file to the path of the public key that has just been created.
 ## Build the Model Container and Deploy It
 
 We have come up with 2 examples for deploying models, please choose the most appropriate for your use case:
-1. [Uploading a model from your local machine](upload_model_from_local.md): in this example, we will package
-a model that is stored in the local machine, upload it to Cloud Storage and build a Docker image to provide
-inferences from it. The model used in this example is
+1. **[Uploading a model from your local machine](upload_model_from_local.md)**: in this example, we will package
+a model stored in the local machine, upload it to Cloud Storage and build a Docker image to provide inferences
+from it. The model used in this example is
 [bart-large-mnli from Huggingface](https://huggingface.co/facebook/bart-large-mnli).
-2. [Loading a model from Model Garden](use_model_from_garden.md): in this example, we pick a model from
+2. **[Loading a model from Model Garden](use_model_from_garden.md)**: in this example, we pick a model from
 [Vertex AI's Model Garden](https://console.cloud.google.com/vertex-ai/model-garden) and deploy it according
 to its instructions. The model used in this example is
 [Meta's Llama 3.1](https://console.cloud.google.com/vertex-ai/publishers/meta/model-garden/llama3_1).

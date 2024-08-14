@@ -33,8 +33,8 @@ time to finish):
 python -m deploy_llama_3_1_from_garden
 ```
 
-Alternatively, if you already have deployed a model before, you can pass in the model
-id and version to the script:
+Alternatively, if you already have deployed a model to the registry before, you can pass
+in the model ID and version (optional) to the script so it can deploy it to the endpoint:
 ```shell
 python -m deploy_llama_3_1_from_garden 1562581944930140160 1
 ```
@@ -48,3 +48,15 @@ for this model and the endpoint ID:
 ```shell
 python -m test_endpoint "inputs/llama3.1.json" 4843021065888202752
 ```
+
+## Undeploy
+
+When you're done using the model, run the `undeploy.py` script to remove the model from
+the endpoint and delete the endpoint. You can call it passing the endpoint ID as
+a parameter:
+```shell
+python -m undeploy 4843021065888202752
+```
+
+***NOTE:*** This will not delete the model from the model registry or from cloud
+storage as the costs to keep those are really small.

@@ -70,8 +70,8 @@ time to finish):
 ```shell
 python -m deploy
 ```
-Alternatively, if you already have deployed a model before, you can pass in the model
-id and version to the script:
+Alternatively, if you already have deployed a model to the registry before, you can pass
+in the model ID and version (optional) to the script so it can deploy it to the endpoint:
 ```shell
 python -m deploy 1562581944930140160 1
 ```
@@ -85,3 +85,36 @@ for this model and the endpoint ID:
 ```shell
 python -m test_endpoint "inputs/bart-mnli.json" 4843021065888202752
 ```
+
+## Update the Model Version
+
+If a new version of the model has been trained, you can update it by running the
+`update_model_version.py` script.
+
+Assuming the Docker container with the predictor stays the same and the new model
+version has already been uploaded to cloud storage, you can call the script passing
+in the ID of the parent model (e.g. the model you want to "replace" with this new
+version) and the path for the new model version in cloud storage:
+```shell
+python -m update_model_version 1562581944930140160 gs://ai-deployment-bootcamp-model/model_v2/
+```
+
+The script will:
+- Upload the new model from cloud storage to Vertex AI, creating a new version
+under the parent model and setting the new version as the default
+- Deploy the new model version to the endpoint ID configured in the
+[`terraform.tfvars`](architectures/terraform.tfvars) file.
+- Once the new model version has been deployed successfully to the endpoint,
+it will undeploy all the other models deployed to that endpoint 
+
+## Undeploy
+
+When you're done using the model, run the `undeploy.py` script to remove the model from
+the endpoint and delete the endpoint. You can call it passing the endpoint ID as
+a parameter:
+```shell
+python -m undeploy 4843021065888202752
+```
+
+***NOTE:*** This will not delete the model from the model registry or from cloud
+storage as the costs to keep those are really small.
