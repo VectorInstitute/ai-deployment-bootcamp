@@ -8,7 +8,7 @@ data = sys.argv[1]
 
 bq_client = bigquery.Client()
 project_prefix = TFVARS["project"].replace("-", "_")
-data_table = bq_client.get_table(f"{TFVARS['project']}.{project_prefix}_database.data_table")
+data_table = bq_client.get_table(f"{TFVARS['project']}.{project_prefix}_{TFVARS['env']}_database.data_table")
 
 last_id_query = bq_client.query(f"SELECT max(id) as max_id from {data_table}")
 last_id = None

@@ -17,7 +17,7 @@ hf_task = "zero-shot-classification"
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s: %(message)s")
 
 project_prefix = TFVARS["project"].replace("-", "_")
-endpoint_display_name = f"{project_prefix}_endpoint"
+endpoint_display_name = f"{project_prefix}_{TFVARS['env']}_endpoint"
 bq_logging_dataset = f"{endpoint_display_name}_monitoring"
 bq_logging_table = f"bq://{TFVARS['project']}.{bq_logging_dataset}.req_resp"
 
@@ -88,7 +88,7 @@ model_monitoring_schema = ml_monitoring.spec.ModelMonitoringSchema(
 model_monitor = ml_monitoring.ModelMonitor.create(
     project=TFVARS["project"],
     location=TFVARS["region"],
-    display_name="bart_model_monitor",
+    display_name=f"bart_model_monitor_{TFVARS['env']}",
     model_name=model.resource_name,
     model_version_id=model_version,
     # training_dataset=TRAINING_DATASET,

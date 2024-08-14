@@ -18,7 +18,7 @@ aiplatform.init(project=TFVARS["project"], location=TFVARS["region"])
 
 logger.info("Uploading new model version...")
 
-model = aiplatform.Model(f"projects/{PROJECT_NUMBER}/locations/{TFVARS['region']}/models/{model_id}")
+model = aiplatform.Model(f"projects/{PROJECT_NUMBER}/locations/{TFVARS['region']}/models/{parent_model_id}")
 model_v2 = aiplatform.Model.upload(
     parent_model=model.resource_name,
     display_name=model_name,
