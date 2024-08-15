@@ -1,16 +1,17 @@
-# AI Deployment Bootcamp
+# Deployment of AI Models Bootcamp
 
-This repository houses the reference implementations for the AI Deployment Bootcamp.
+This repository houses the reference implementations for the Deployment of AI Models
+Bootcamp.
 
 ## About
 
-The AI Deployment Bootcamp aims to introduce the different elements and concepts of
-a production model inferencing pipeline.
+The Deployment of AI Models Bootcamp aims to introduce and explain the details of the
+different elements and concepts of a production AI model inferencing pipeline.
 
 This repository contains reference implementations with terraform and python scripts
 to make online (real-time) and offline (batch) pipelines in cloud providers, as well
 as detailed instructions on how to upload models, configure and run the code,
-as well as testing the pipelines.
+and testing the pipelines.
 
 ## Repository Structure
 
@@ -19,14 +20,14 @@ provider. Each reference implementation has its own directory containing scripts
 terraform plans, and a README for guidance.
 - **data/**: Includes sample datasets or links to datasets used in the bootcamp,
 along with usage instructions. It also contains the implementation of dataset modules,
-or anything related to that.
+and anything related to that.
 
 
 ### Reference Implementations Directory
 
 Each cloud provider covered in the bootcamp has a dedicated directory in the
 `reference_implementations/` directory. In each directory, there is a README file
-that provides an overview of the topic, prerequisites, and detailed instructions.
+that provides an overview of the code, prerequisites, and detailed instructions.
 
 Here is the list of the covered cloud providers:
 - [Google Cloud Provider (GCP)](reference_implementations/gcp)
