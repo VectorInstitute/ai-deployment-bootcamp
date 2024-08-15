@@ -16,6 +16,7 @@ PROJECT_ID = os.environ.get("PROJECT_ID")
 PROJECT_NUMBER = os.environ.get("PROJECT_NUMBER")
 REGION = os.environ.get("REGION")
 DB_PASSWORD = os.environ.get("DB_PASSWORD")
+ENV = os.environ.get("ENV")
 PROJECT_PREFIX = PROJECT_ID.replace("-", "_")
 
 
@@ -32,7 +33,7 @@ def process(event, context):
 
         aiplatform.init(project=PROJECT_ID, location=REGION)
         entity_type = aiplatform.featurestore.EntityType(
-            featurestore_id=f"{PROJECT_PREFIX}_featurestore",
+            featurestore_id=f"{PROJECT_PREFIX}_{ENV}_featurestore",
             entity_type_name="data_entity",
         )
 
@@ -65,7 +66,7 @@ def process(event, context):
         print(f"Prediction: {prediction}")
 
         bq_client = bigquery.Client()
-        predictions_table = bq_client.get_table(f"{PROJECT_ID}.{PROJECT_PREFIX}_database.predictions_table")
+        predictions_table = bq_client.get_table(f"{PROJECT_ID}.{PROJECT_PREFIX}_{ENV}_database.predictions_table")
 
         last_id_query = bq_client.query(f"SELECT max(id) as max_id from {predictions_table}")
         last_id = None
@@ -89,7 +90,7 @@ def process(event, context):
 
 class Models(Enum):
     LLAMA_3_1 = "llama3.1"
-    BART_MNLI_LARGE = "bart_mnli_large"
+    BART_LARGE_MNLI = "bart-large-mnli"
 
     @classmethod
     def list(cls) -> List[str]:
@@ -102,12 +103,12 @@ class Models(Enum):
             input_dict["prompt"] = input
             return input_dict
 
-        if model_name == Models.BART_MNLI_LARGE.value:
+        if model_name == Models.BART_LARGE_MNLI.value:
             input_dict = deepcopy(BART_MNLI_INPUT_TEMPLATE)
             input_dict["sequences"] = input
             return input_dict
 
-        raise Exception(f"Model{model_name} not supported! Supported models: {Models.list()}")
+        raise Exception(f"Model {model_name} not supported! Supported models: {Models.list()}")
 
 
 LLAMA_3_1_INPUT_TEMPLATE = {

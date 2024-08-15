@@ -10,6 +10,10 @@ variable "short_project_prefix" {
   type = string
 }
 
+variable "env" {
+  type = string
+}
+
 variable "user" {
   type = string
 }
@@ -72,8 +76,8 @@ data "google_project" "project" {
 ### BEGIN SERVICE ACCOUNT PERMISSIONS
 
 resource "google_service_account" "sa" {
-  account_id = "${var.short_project_prefix}-sa"
-  display_name = "${var.project} Service Account"
+  account_id = "${var.short_project_prefix}-${var.env}-sa"
+  display_name = "${var.project}-${var.env} Service Account"
 }
 
 resource "google_project_iam_member" "storage_object_viewer" {
@@ -103,7 +107,7 @@ resource "google_project_iam_member" "big_query_data_editor" {
 ### END SERVICE ACCOUNT PERMISSIONS
 
 resource "google_bigquery_dataset" "database" {
-  dataset_id    = "${local.project_prefix}_database"
+  dataset_id    = "${local.project_prefix}_${var.env}_database"
   location      = "US"
 }
 
@@ -122,12 +126,12 @@ resource "google_bigquery_table" "predictions_table" {
 }
 
 resource "google_pubsub_topic" "input_queue" {
-  name                       = "${var.project}-input-queue"
+  name                       = "${var.project}-${var.env}-input-queue"
   message_retention_duration = "86600s"
 }
 
 resource "google_storage_bucket" "gcf_source" {
-  name                        = "${var.project}-gcf-source"
+  name                        = "${var.project}-${var.env}-gcf-source"
   location                    = "US"
   uniform_bucket_level_access = true
 }
@@ -146,7 +150,7 @@ resource "google_storage_bucket_object" "ml_api" {
 }
 
 resource "google_cloudfunctions2_function" "default" {
-  name        = "${var.project}-ml-api"
+  name        = "${var.project}-${var.env}-ml-api"
   location    = var.region
   description = "ML API to process input messages"
 
@@ -175,6 +179,7 @@ resource "google_cloudfunctions2_function" "default" {
       PROJECT_NUMBER = data.google_project.project.number
       REGION         = var.region
       MODEL          = var.model
+      ENV            = var.env
     }
   }
 
@@ -195,7 +200,7 @@ resource "google_cloudfunctions2_function" "default" {
 }
 
 resource "google_vertex_ai_featurestore" "default" {
-  name   = "${local.project_prefix}_featurestore"
+  name   = "${local.project_prefix}_${var.env}_featurestore"
   region = var.region
 
   online_serving_config {

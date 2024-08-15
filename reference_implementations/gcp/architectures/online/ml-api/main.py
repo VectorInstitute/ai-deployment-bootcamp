@@ -17,6 +17,7 @@ ZONE = os.getenv("ZONE")
 REGION = f"{ZONE.split('-')[0]}-{ZONE.split('-')[1]}"
 PROJECT_ID = os.getenv("PROJECT_ID")
 PROJECT_NUMBER = os.getenv("PROJECT_NUMBER")
+ENV = os.getenv("ENV")
 PROJECT_PREFIX = PROJECT_ID.replace("-", "_")
 
 
@@ -25,7 +26,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[Any, Any]:
     """Set up function for app startup and shutdown."""
     aiplatform.init(project=PROJECT_ID, location=REGION)
     app.entity_type = aiplatform.featurestore.EntityType(
-        featurestore_id=f"{PROJECT_PREFIX}_featurestore",
+        featurestore_id=f"{PROJECT_PREFIX}_{ENV}_featurestore",
         entity_type_name="data_entity",
     )
     yield
@@ -65,7 +66,7 @@ async def predict(data_id: str):
 
 class Models(Enum):
     LLAMA_3_1 = "llama3.1"
-    BART_MNLI_LARGE = "bart_mnli_large"
+    BART_LARGE_MNLI = "bart-large-mnli"
 
     @classmethod
     def list(cls) -> List[str]:
@@ -78,12 +79,12 @@ class Models(Enum):
             input_dict["prompt"] = input
             return input_dict
 
-        if model_name == Models.BART_MNLI_LARGE.value:
+        if model_name == Models.BART_LARGE_MNLI.value:
             input_dict = deepcopy(BART_MNLI_INPUT_TEMPLATE)
             input_dict["sequences"] = input
             return input_dict
 
-        raise Exception(f"Model{model_name} not supported! Supported models: {Models.list()}")
+        raise Exception(f"Model {model_name} not supported! Supported models: {Models.list()}")
 
 
 LLAMA_3_1_INPUT_TEMPLATE = {

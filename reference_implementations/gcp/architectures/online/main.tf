@@ -10,6 +10,10 @@ variable "short_project_prefix" {
   type = string
 }
 
+variable "env" {
+  type = string
+}
+
 variable "user" {
   type = string
 }
@@ -61,8 +65,8 @@ data "google_project" "project" {
 ### BEGIN SERVICE ACCOUNT PERMISSIONS
 
 resource "google_service_account" "sa" {
-  account_id = "${var.short_project_prefix}-sa"
-  display_name = "${var.project} Service Account"
+  account_id = "${var.short_project_prefix}-${var.env}-sa"
+  display_name = "${var.project}-${var.env} Service Account"
 }
 
 resource "google_project_iam_member" "storage_object_viewer" {
@@ -86,7 +90,7 @@ resource "google_project_iam_member" "compute_instances_get" {
 ### END SERVICE ACCOUNT PERMISSIONS
 
 resource "google_bigquery_dataset" "database" {
-  dataset_id    = "${local.project_prefix}_database"
+  dataset_id    = "${local.project_prefix}_${var.env}_database"
   location      = "US"
 }
 
@@ -135,7 +139,7 @@ resource "google_compute_address" "static_ip" {
 }
 
 resource "google_storage_bucket" "api_source" {
-  name                        = "${var.project}-api-source"
+  name                        = "${var.project}-${var.env}-api-source"
   location                    = "US"
   uniform_bucket_level_access = true
 }
@@ -154,7 +158,7 @@ resource "google_storage_bucket_object" "ml_api" {
 }
 
 resource "google_compute_instance" "ml-api-server" {
-  name                      = "ml-api-vm"
+  name                      = "${var.project}-${var.env}-ml-api"
   machine_type              = "e2-micro"
   zone                      = "${var.region}-a"
   tags                      = ["sshfw", "webserverfw", "http-server"]
@@ -179,6 +183,7 @@ resource "google_compute_instance" "ml-api-server" {
     ssh-keys = "${var.user}:${file(var.publickeypath)}"
     endpoint = var.endpoint
     model    = var.model
+    env      = var.env
   }
 
   metadata_startup_script = file(var.scriptpath)
@@ -201,7 +206,7 @@ output "ssh_access_via_ip" {
 }
 
 resource "google_vertex_ai_featurestore" "default" {
-  name   = "${local.project_prefix}_featurestore"
+  name   = "${local.project_prefix}_${var.env}_featurestore"
   region = var.region
 
   online_serving_config {

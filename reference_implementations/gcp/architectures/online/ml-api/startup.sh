@@ -8,8 +8,9 @@ export PROJECT_ID=$(curl http://metadata.google.internal/computeMetadata/v1/proj
 export PROJECT_NUMBER=$(gcloud projects describe $PROJECT_ID --format="value(projectNumber)")
 export ENDPOINT_ID=$(gcloud compute instances describe $INSTANCE_NAME --format='value[](metadata.items.endpoint)' --zone=$ZONE)
 export MODEL_NAME=$(gcloud compute instances describe $INSTANCE_NAME --format='value[](metadata.items.model)' --zone=$ZONE)
+export ENV=$(gcloud compute instances describe $INSTANCE_NAME --format='value[](metadata.items.env)' --zone=$ZONE)
 
-gcloud storage cp "gs://${PROJECT_ID}-api-source/ml-api.zip" ./
+gcloud storage cp "gs://${PROJECT_ID}-${ENV}-api-source/ml-api.zip" ./
 unzip ml-api.zip -d ./ml-api
 cd ml-api
 python3 -m venv venv

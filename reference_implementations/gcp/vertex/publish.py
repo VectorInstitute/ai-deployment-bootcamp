@@ -9,7 +9,7 @@ from constants import TFVARS
 message = sys.argv[1]
 
 publisher = pubsub_v1.PublisherClient()
-topic_path = publisher.topic_path(project=TFVARS["project"], topic=f"{TFVARS['project']}-input-queue")
+topic_path = publisher.topic_path(project=TFVARS["project"], topic=f"{TFVARS['project']}-{TFVARS['env']}-input-queue")
 
 
 def callback(publish_future: pubsub_v1.publisher.futures.Future) -> None:

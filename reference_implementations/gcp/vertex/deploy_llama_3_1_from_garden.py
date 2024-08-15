@@ -49,13 +49,13 @@ else:
     )
 
 service_account = create_service_account_with_roles(
-    account_id=f"{TFVARS['short_project_prefix']}-llama-sa",
-    account_display_name=f"{TFVARS['project']} Llama Endpoint Service Account",
+    account_id=f"{TFVARS['short_project_prefix']}-{TFVARS['env']}-llama-sa",
+    account_display_name=f"{TFVARS['project']}-{TFVARS['env']} Llama Endpoint Service Account",
     project_id=TFVARS["project"],
     roles=["roles/aiplatform.user", "roles/storage.objectViewer"],
 )
 
-endpoint = aiplatform.Endpoint.create(display_name=f"{TFVARS['project']}-llama-garden-endpoint")
+endpoint = aiplatform.Endpoint.create(display_name=f"{TFVARS['project']}-{TFVARS['env']}-llama-garden-endpoint")
 
 # Saving the endpoint id and model name in the tfvars
 TFVARS["endpoint"] = endpoint.name
