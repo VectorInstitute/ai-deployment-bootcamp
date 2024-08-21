@@ -5,8 +5,8 @@ At the end of this guide you should have an architecture reflecting the diagram 
 
 ![diagram.png](diagram.png)
 
-There wil be an input queue which will receive a request to make a prediction with a
-record id.  The ML API cloud function will be triggered, retrieve that record from the
+There will be an input queue which will receive a request to make a prediction with a
+feature id. The ML API cloud function will be triggered, retrieve that record from the
 Feature Store and send it as input to the ML Servers. The servers will make an inference
 with the input data and return a prediction. The ML API will in turn save the prediction
 into the database for later use.
@@ -31,6 +31,8 @@ terraform plan:
 ```shell
 terraform apply -var-file=../terraform.tfvars
 ```
+
+At the end of the `apply` command, your pipeline should be ready to be tested.
 
 ## Feature Store
 

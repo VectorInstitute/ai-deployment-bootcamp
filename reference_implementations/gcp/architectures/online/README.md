@@ -43,12 +43,14 @@ machine then run:
 tail -f /var/log/syslog
 ```
 
-Once it has fininsh setting up, it will start the FastAPI server. To check its logs, run:
+It may take a while to finish the set up. Once it has finished, it will start the FastAPI
+server. To check its logs, run:
 ```shell
 tail -f /ml-api/ml-api.log
 ```
 
-Once `ml-api` instance is up and FastAPI is running, the endpoint will be available at port 8080.
+Once `ml-api` instance is up and FastAPI is running, a `/predict/{feature_id}` endpoint
+will be available at port `8080`.
 
 ## Feature Store
 
@@ -70,7 +72,7 @@ Now the data is ready to be pulled for prediction.
 ## Run a prediction
 
 To run a prediction in a data point, make a `GET` request to the `/predict`
-endpoint using the data point id:
+endpoint using the feature id:
 ```shell
 http://<instance-ip>:8080/predict/1
 ```
