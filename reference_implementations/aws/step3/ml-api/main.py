@@ -1,12 +1,20 @@
 from fastapi import FastAPI, Request, JSONResponse
 import boto3
 from sagemaker.predictor import Predictor
+import sagemaker
 
 # Replace with your SageMaker endpoint name
-endpoint_name = 'ai-deployment-endpoint'
+endpoint_name = 'paraphrase-bert-en-inf1-202408-2014-5446'
 
 # Create a SageMaker Predictor object (replace role with your actual role)
-role = 'your-role-arn'  # IAM role with access to SageMaker endpoint
+# role = 'your-role-arn'  # IAM role with access to SageMaker endpoint
+try:
+	role = sagemaker.get_execution_role()
+except ValueError:
+	iam = boto3.client('iam')
+	role = iam.get_role(RoleName='sagemaker_execution_role')['Role']['Arn']
+
+print(f"Role: \n{role=}")
 predictor = Predictor(endpoint_name=endpoint_name, role=role)
 
 app = FastAPI()
