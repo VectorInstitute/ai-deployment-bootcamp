@@ -96,6 +96,4 @@ model_monitor = ml_monitoring.ModelMonitor.create(
 )
 print(f"Model monitor {model_monitor.name} created.")
 
-# TODO run the model monitoring jobs
-
 print("Endpoint ID:", endpoint.name)
