@@ -10,3 +10,11 @@ publickeypath = "~/.ssh/id_rsa.pub"
 schemas_folder = "../../schemas"
 endpoint = ""
 model = "llama3.1"
+team_members = [
+    "arooj_ahmed.qureshi@bell.ca",
+    "mingchen.yang@bell.ca",
+    "daniel.bucci@bell.ca",
+    "chike.odenigbo@bell.ca",
+    "louisphilippe.bosse@bell.ca",
+    "hadi.abdi_ghavidel@bell.ca"
+]

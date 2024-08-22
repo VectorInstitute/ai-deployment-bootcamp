@@ -13,7 +13,7 @@ sed -i "s/^user =.*/user = \"$user_email\"/" reference_implementations/gcp/archi
 sed -i "s/^env =.*/env = \"dev-$user_prefix\"/" reference_implementations/gcp/architectures/terraform.tfvars
 
 # Navigate to the vertex directory
-cd vertex
+cd ./vertex
 
 # Set up Python virtual environment
 python -m venv venv
