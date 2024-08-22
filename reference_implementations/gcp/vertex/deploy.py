@@ -11,7 +11,7 @@ from utils import save_tfvars
 model_id = sys.argv[1] if len(sys.argv) > 1 else None
 model_version = sys.argv[2] if len(sys.argv) > 2 else "default"
 
-model_name = "bart-large-mnli"
+model_name = f"bart-large-mnli-{TFVARS['env']}"
 hf_task = "zero-shot-classification"
 
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s: %(message)s")
