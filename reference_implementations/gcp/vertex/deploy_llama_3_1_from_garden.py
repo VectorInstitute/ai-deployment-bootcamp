@@ -13,12 +13,12 @@ aiplatform.init(project=TFVARS["project"], location=TFVARS["region"])
 model_id = sys.argv[1] if len(sys.argv) > 1 else None
 model_version = sys.argv[2] if len(sys.argv) > 2 else "default"
 
-model_name = "llama3.1"
+model_name = f"llama3.1-{TFVARS['env']}"
 
 if model_id is not None:
     model = aiplatform.Model(f"projects/{PROJECT_NUMBER}/locations/{TFVARS['region']}/models/{model_id}@{model_version}")
 else:
-    model_path = f"gs://{TFVARS['project']}-model/llama-garden/llama3.1/Meta-Llama-3.1-8B-Instruct"
+    model_path = f"gs://{TFVARS['project']}-{TFVARS['env']}-model/llama-garden/llama3.1/Meta-Llama-3.1-8B-Instruct"
     vllm_args = [
         "python",
         "-m",
@@ -70,4 +70,5 @@ model.deploy(
     deploy_request_timeout=1800,
     service_account=service_account.email,
 )
+print("Model name:", model_name)
 print("Endpoint ID:", endpoint.name)

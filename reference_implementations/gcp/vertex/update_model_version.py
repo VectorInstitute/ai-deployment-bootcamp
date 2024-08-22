@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 parent_model_id = sys.argv[1]
 artifact_uri = sys.argv[2]
 
-model_name = "bart-large-mnli"
+model_name = f"bart-large-mnli-{TFVARS['env']}"
 hf_task = "zero-shot-classification"
 
 aiplatform.init(project=TFVARS["project"], location=TFVARS["region"])
