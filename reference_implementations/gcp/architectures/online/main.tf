@@ -266,9 +266,20 @@ resource "google_service_account_iam_binding" "act_as_permission" {
   members            = [for member in var.team_members : "user:${member}"]
 }
 
-resource "google_workbench_instance" "instance" {
-  for_each = toset(var.team_members)
+locals {
+  # Create a map of usernames with the email as the key for easy reference
+  usernames = { for email in var.team_members : email => split("@", email)[0] }
+}
 
+locals {
+  # Create shortened identifiers for each team member
+  shortened_team_members = { for email, username in local.usernames : email => "${substr(username, 0, 1)}${substr(split(".", username)[1], 0, 1)}@service-account.com" }
+}
+
+resource "google_workbench_instance" "instance" {
+  for_each = local.shortened_team_members
+
+  # Adjusted to use a descriptive username. Assuming each.key is the username you want.
   name     = "${var.short_project_prefix}-workbench-${each.key}"
   location = "${var.region}-a"
   project  = var.project
@@ -289,7 +300,8 @@ resource "google_workbench_instance" "instance" {
     disable_public_ip = false
 
     service_accounts {
-      email = "${each.value}@service-account.com" # Example of dynamic email construction
+      # Corrected to use the value from the iteration, which is the shortened email
+      email = each.value # Assuming each.value is already in the format "initials@service-account.com"
     }
 
     boot_disk {
