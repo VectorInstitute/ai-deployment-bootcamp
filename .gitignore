@@ -11,3 +11,5 @@
 *bart-large-mnli/
 *ml-api.zip
 ml-api.log
+
+/reference_implementations/gcp/architectures/terraform.tfvars
