@@ -2,18 +2,28 @@
 # How to run this script in the terminal:
 # bash start.sh
 
-# Prompt for user email
-read -p "Enter user email: " user_email
+# Extract the user variable value from terraform.tfvars
+user_email=$(grep "^user\s*=" reference_implementations/gcp/architectures/terraform.tfvars | cut -d'"' -f2)
+
+# Check if the user variable is empty
+if [ -z "$user_email" ]; then
+    # Prompt for user email
+    read -p "Enter user email: " user_email
+    # Optionally, you can update the terraform.tfvars file with the new user email
+    # sed -i 's/^user\s*=.*/user = "'$user_email'"/' reference_implementations/gcp/architectures/terraform.tfvars
+fi
 
 # Extract the part before the @ of the user email
 user_prefix=$(echo "$user_email" | cut -d '@' -f 1)
+shortened_user_name=$(echo "$user_prefix" | awk -F'[._]' '{print substr($1,1,1) substr($2,1,1)}')
 
 # Update terraform.tfvars file with the user email and a constructed env value
 sed -i "s/^user =.*/user = \"$user_email\"/" reference_implementations/gcp/architectures/terraform.tfvars
+sed -i "s/^shortened_user_name =.*/shortened_user_name = \"$shortened_user_name\"/" reference_implementations/gcp/architectures/terraform.tfvars
 sed -i "s/^env =.*/env = \"dev-$user_prefix\"/" reference_implementations/gcp/architectures/terraform.tfvars
 
 # Navigate to the vertex directory
-cd ./vertex
+cd ./reference_implementations/gcp/vertex
 
 # Set up Python virtual environment
 python -m venv venv
@@ -25,8 +35,7 @@ pip install -r requirements.txt
 # Define variables
 PROJECT_ID="bell-canada-inc"
 SHORT_PROJECT_ID="bci" # Replace with your project ID
-USER="lp-test" # Replace with your username
-BUCKET_NAME="${SHORT_PROJECT_ID}-${USER}-ai-deployment-bootcamp-model"
+BUCKET_NAME="${SHORT_PROJECT_ID}-ai-deployment-bootcamp-model"
 MODEL_SOURCE="gs://vertex-model-garden-public-us/llama3.1"
 LOCATION="us-central1"
 MODEL_ID="" # Optional: Fill this if you have a specific model ID to deploy

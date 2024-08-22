@@ -49,8 +49,8 @@ else:
     )
 
 service_account = create_service_account_with_roles(
-    account_id=f"{TFVARS['short_project_prefix']}-{TFVARS['env']}-llama-sa",
-    account_display_name=f"{TFVARS['project']}-{TFVARS['env']} Llama Endpoint Service Account",
+    account_id=f"{TFVARS['short_project_prefix']}-{TFVARS['shortened_user_name']}-llama-sa",
+    account_display_name=f"{TFVARS['project']}-{TFVARS['shortened_user_name']} Llama Endpoint Service Account",
     project_id=TFVARS["project"],
     roles=["roles/aiplatform.user", "roles/storage.objectViewer"],
 )
