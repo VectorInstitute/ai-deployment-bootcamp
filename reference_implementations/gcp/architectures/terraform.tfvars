@@ -1,7 +1,7 @@
 project = "bell-canada-inc"
 short_project_prefix = "bci"
 # Please replace with your email address
-user = "louisphilippe.bosse@bell.ca"
+user = ""
 # The environment is used to create a unique name for the resources
 # Can help create different projects for different people dev-{your_name}
 env = ""
