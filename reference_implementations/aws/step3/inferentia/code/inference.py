@@ -1,7 +1,11 @@
 import os
 import json
 import torch
-from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipeline
+import logging
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
+
+logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s: %(message)s")
+logger = logging.getLogger(__name__)
 
 JSON_CONTENT_TYPE = 'application/json'
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -11,10 +15,27 @@ pytorch_model_file = "paraphrase_bert.pt"
 def model_fn(model_dir):
     """ receives the model directory/name and is responsible for loading and returning the model"""
 
-    tokenizer = AutoTokenizer.from_pretrained(model_dir)
+
+    logger.info(f"Loading model from: {model_dir} ")
+
+    import os
+
+    # Specify the directory
+    directory = f'{model_dir}'
+
+    # List all files in the directory
+    files = os.listdir(directory)
+
+    # Print the files
+    for file in files:
+        logger.info(file)
+
+    # tokenizer = AutoTokenizer.from_pretrained(model_dir)
+    tokenizer = AutoTokenizer.from_pretrained('Prompsit/paraphrase-bert-en')   
+
+    logger.info("Tokenizer loaded. Loading compiled model...") 
     compiled_model = os.path.exists(f'{model_dir}/{pytorch_model_file}')
     if compiled_model:
-        import torch_neuron
         os.environ["NEURONCORE_GROUP_SIZES"] = "1"
         model = torch.jit.load(f'{model_dir}/{pytorch_model_file}')
     else: 
@@ -27,6 +48,7 @@ def input_fn(serialized_input_data, content_type=JSON_CONTENT_TYPE):
     """In charge of pre-processing of input to the endpoint."""
     if content_type == JSON_CONTENT_TYPE:
         input_data = json.loads(serialized_input_data)
+        logger.info(f"Processed input data in input_fn: {input_data}")
         return input_data
     else:
         raise Exception('Requested unsupported ContentType in Accept: ' + content_type)
@@ -34,9 +56,11 @@ def input_fn(serialized_input_data, content_type=JSON_CONTENT_TYPE):
     
 
 def predict_fn(input_data, models):
+
+    logger.info(f"Received input in predict_fn: {input_data}")
     
-    sequence_0 = input_data[0] 
-    sequence_1 = input_data[1]
+    sequence_0 = input_data['seq_0'] 
+    sequence_1 = input_data['seq_1']
     model_bert, tokenizer = models
     
     max_length = 512
@@ -61,6 +85,8 @@ def predict_fn(input_data, models):
 
 def output_fn(prediction_output, accept=JSON_CONTENT_TYPE):
     """In charge of checking content types of output to the endpoint."""
+
+    logger.info(f"Output received in output_fn: {prediction_output}")
     if accept == JSON_CONTENT_TYPE:
         return json.dumps(prediction_output), accept
     

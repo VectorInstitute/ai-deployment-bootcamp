@@ -24,7 +24,7 @@ except ValueError:
 
 print(f"Role: \n{role=}")
 
-model_s3_url = f"s3://sagemaker-us-east-1-025066243062/neuron-experiments/bert-seq-classification/traced-model/traced_model.tar.gz"
+model_s3_url = f"s3://sagemaker-us-east-1-025066243062/bert-seq-classification/traced-model/traced_model.tar.gz"
 
 
 # versions are found in model's HF page
@@ -34,8 +34,9 @@ hf_model  = HuggingFaceModel(
     transformers_version="4.12.3",
     pytorch_version='1.9',
     role=role,
+    source_dir="code",
     entry_point="inference.py",
-    py_version="py37",
+    py_version="py39",
     name=f"distilbert-{date_string}",
     env={"SAGEMAKER_CONTAINER_LOG_LEVEL": "10"},
 )
@@ -67,22 +68,10 @@ result = s3.list_objects_v2(Bucket="sagemaker-us-east-1-025066243062",
 
 print(f"{result=}")
 
-
 print(f"{output_model_path=}")
 
-
-# compiled_inf1_model = compiled_inf1_model.compile(
-#     target_instance_family=f"ml_{hardware}",
-#     input_shape={"input_ids": [1, 512], "attention_mask": [1, 512]},
-#     job_name=compilation_job_name,
-#     role=role,
-#     framework="pytorch",
-#     framework_version="1.9.1",
-#     output_path=output_model_path,
-#     compiler_options=json.dumps("--dtype int64"),
-#     compile_max_run=900,
-# )
 print("HF Model created. Proceeding to compilation...")
+
 compiled_model = hf_model.compile(
     target_instance_family=f"ml_{hardware}",
     input_shape={"input_ids": [1, 512], "attention_mask": [1, 512]},
@@ -106,22 +95,22 @@ compiled_inf1_predictor = compiled_model.deploy(
     wait=False
 )
 
-print("Model deployed. Testing status...")
+print(f"Model deployed: {compiled_inf1_predictor.endpoint_name}")
 
 # Perform test inference
 
-# Predict with model endpoint
-client = boto3.client('sagemaker')
+# # Predict with model endpoint
+# client = boto3.client('sagemaker')
 
-#let's make sure it is up und running first
-status = ""
-while status != 'InService':
-    endpoint_response = client.describe_endpoint(EndpointName=f"paraphrase-bert-en-{hardware}-{date_string}")
-    status = endpoint_response['EndpointStatus']
+# #let's make sure it is up und running first
+# status = ""
+# while status != 'InService':
+#     endpoint_response = client.describe_endpoint(EndpointName=f"paraphrase-bert-en-{hardware}-{date_string}")
+#     status = endpoint_response['EndpointStatus']
 
 
-# Send a payload to the endpoint and recieve the inference
-seq_0 = "Welcome to Vector AI Deployment Bootcamp! Thank you for attending the workshop on deploying ML models on Inferentia instances."
-seq_1 = seq_0
-payload = seq_0, seq_1
-compiled_inf1_predictor.predict(payload)
+# # Send a payload to the endpoint and recieve the inference
+# seq_0 = "Welcome to Vector AI Deployment Bootcamp! Thank you for attending the workshop on deploying ML models on Inferentia instances."
+# seq_1 = seq_0
+# payload = seq_0, seq_1
+# compiled_inf1_predictor.predict(payload)
