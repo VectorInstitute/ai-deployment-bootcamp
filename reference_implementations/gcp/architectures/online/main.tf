@@ -70,8 +70,8 @@ data "google_project" "project" {
 ### BEGIN SERVICE ACCOUNT PERMISSIONS
 
 resource "google_service_account" "sa" {
-  account_id = "${var.short_project_prefix}-${var.env}-sa"
-  display_name = "${var.project}-${var.env} Service Account"
+  account_id = "${var.short_project_prefix}-sa"
+  display_name = "${var.project} Service Account"
 }
 
 resource "google_project_iam_member" "storage_object_viewer" {
@@ -95,7 +95,7 @@ resource "google_project_iam_member" "compute_instances_get" {
 ### END SERVICE ACCOUNT PERMISSIONS
 
 resource "google_bigquery_dataset" "database" {
-  dataset_id    = "${local.project_prefix}_${var.env}_database"
+  dataset_id    = "${local.project_prefix}_database"
   location      = "US"
 }
 
@@ -144,7 +144,7 @@ resource "google_compute_address" "static_ip" {
 }
 
 resource "google_storage_bucket" "api_source" {
-  name                        = "${var.project}-${var.env}-api-source"
+  name                        = "${var.project}-api-source"
   location                    = "US"
   uniform_bucket_level_access = true
 }
@@ -163,7 +163,7 @@ resource "google_storage_bucket_object" "ml_api" {
 }
 
 resource "google_compute_instance" "ml-api-server" {
-  name                      = "${var.project}-${var.env}-ml-api"
+  name                      = "${var.project}-ml-api"
   machine_type              = "e2-micro"
   zone                      = "${var.region}-a"
   tags                      = ["sshfw", "webserverfw", "http-server"]
@@ -211,7 +211,7 @@ output "ssh_access_via_ip" {
 }
 
 resource "google_vertex_ai_featurestore" "default" {
-  name   = "${local.project_prefix}_${var.env}_featurestore"
+  name   = "${local.project_prefix}_featurestore"
   region = var.region
 
   online_serving_config {
@@ -261,26 +261,35 @@ resource "google_compute_address" "static" {
 }
 
 resource "google_service_account_iam_binding" "act_as_permission" {
-  service_account_id = "projects/${var.project}/serviceAccounts/${var.user}"
+  service_account_id = "projects/${var.project}/serviceAccounts/${google_service_account.sa.email}"
   role               = "roles/iam.serviceAccountUser"
   members            = [for member in var.team_members : "user:${member}"]
 }
 
 locals {
-  # Create a map of usernames with the email as the key for easy reference
-  usernames = { for email in var.team_members : email => split("@", email)[0] }
+  team_info = { for email in var.team_members : email => {
+    email = email,
+    username = lower(replace(replace(split("@", email)[0], ".", "-"), "_", "-")),
+    shortened = "${var.short_project_prefix}-${substr(replace(split("@", email)[0], ".", "-"), 0, 1)}${
+      length(split("-", replace(split("@", email)[0], ".", "-"))) > 1 ? 
+      substr(split("-", replace(split("@", email)[0], ".", "-"))[1], 0, 1) : 
+      ""}-${substr(md5(email), 0, 6)}"
+  }}
 }
 
-locals {
-  # Create shortened identifiers for each team member
-  shortened_team_members = { for email, username in local.usernames : email => "${substr(username, 0, 1)}${substr(split(".", username)[1], 0, 1)}@service-account.com" }
+resource "google_service_account" "bci" {
+  for_each = local.team_info
+
+  account_id   = each.value.shortened
+  display_name = "Service Account for ${each.key}"
+  project      = var.project
 }
 
 resource "google_workbench_instance" "instance" {
-  for_each = local.shortened_team_members
+  for_each = local.team_info
 
   # Adjusted to use a descriptive username. Assuming each.key is the username you want.
-  name     = "${var.short_project_prefix}-workbench-${each.key}"
+  name     = "${var.short_project_prefix}-workbench-${each.value.username}"
   location = "${var.region}-a"
   project  = var.project
 
@@ -300,22 +309,19 @@ resource "google_workbench_instance" "instance" {
     disable_public_ip = false
 
     service_accounts {
-      # Corrected to use the value from the iteration, which is the shortened email
-      email = each.value # Assuming each.value is already in the format "initials@service-account.com"
+      email = google_service_account.bci[each.key].email
     }
 
     boot_disk {
       disk_size_gb    = 310
       disk_type       = "PD_SSD"
-      disk_encryption = "CMEK"
-      kms_key         = "my-crypto-key"
+      disk_encryption = "GMEK"
     }
 
     data_disks {
       disk_size_gb    = 330
       disk_type       = "PD_SSD"
-      disk_encryption = "CMEK"
-      kms_key         = "my-crypto-key"
+      disk_encryption = "GMEK"
     }
 
     network_interfaces {
@@ -338,12 +344,11 @@ resource "google_workbench_instance" "instance" {
 
   disable_proxy_access = true
 
-  instance_owners = [each.value]
+  instance_owners = [each.key]
 
   labels = {
     project = var.project
-    env     = var.env
   }
 
-  desired_state = "ACTIVE"
+  desired_state = "INACTIVE"
 }
