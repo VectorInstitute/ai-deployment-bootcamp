@@ -14,8 +14,14 @@ query = bq_client.query(f"SELECT * from {data_table}")
 data_to_import = []
 indexes = []
 for data in query.result():
-    data_to_import.append({"data_feature": data.get("data")})
-    indexes.append(str(data.get("id")))
+    data_id = str(data.get("id"))
+    data_feature = data.get("data")
+    if data_id in indexes:
+        print(f"Skipping duplicated data id {data_id}. Data: {data_feature} ")
+        continue
+
+    data_to_import.append({"data_feature": data_feature})
+    indexes.append(data_id)
 
 df_to_import = pd.DataFrame(data_to_import, index=indexes)
 
