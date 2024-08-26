@@ -125,6 +125,13 @@ resource "google_bigquery_table" "predictions_table" {
   schema              = file("${var.schemas_folder}/predictions.json")
 }
 
+resource "google_bigquery_table" "ground_truth_table" {
+  deletion_protection = false
+  dataset_id          = google_bigquery_dataset.database.dataset_id
+  table_id            = "ground_truth_table"
+  schema              = file("${var.schemas_folder}/groundtruth.json")
+}
+
 resource "google_pubsub_topic" "input_queue" {
   name                       = "${var.project}-${var.env}-input-queue"
   message_retention_duration = "86600s"
