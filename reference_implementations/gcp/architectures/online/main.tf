@@ -108,6 +108,13 @@ resource "google_bigquery_table" "predictions_table" {
   schema              = file("${var.schemas_folder}/predictions.json")
 }
 
+resource "google_bigquery_table" "ground_truth_table" {
+  deletion_protection = false
+  dataset_id          = google_bigquery_dataset.database.dataset_id
+  table_id            = "ground_truth_table"
+  schema              = file("${var.schemas_folder}/groundtruth.json")
+}
+
 resource "google_compute_firewall" "ssh" {
   name    = "ssh-firewall"
   network = "default"
