@@ -16,7 +16,7 @@ parser.add_argument('--datasetname', type=str, required=True, help=f"choose from
 args = parser.parse_args()
 
 upload_data = {}
-with open(f"{storage_directory}/{args.datasetname}.json") as f:
+with open(f"{storage_directory}/{args.datasetname}/{args.datasetname}.json") as f:
     df = json.load(f)
 
 supported_task_types = ["Summarization", "Translation"]
