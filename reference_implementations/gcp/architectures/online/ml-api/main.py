@@ -1,14 +1,14 @@
 import json
 import os
 from contextlib import asynccontextmanager
-from copy import deepcopy
-from enum import Enum
-from typing import Dict, List, Any, AsyncGenerator
+from typing import Any, AsyncGenerator
 
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from google.api import httpbody_pb2
 from google.cloud import aiplatform_v1, aiplatform
+
+from .models import LlamaTask, Models
 
 
 ENDPOINT_ID = os.getenv("ENDPOINT_ID")
@@ -36,7 +36,7 @@ app = FastAPI(lifespan=lifespan)
 
 
 @app.get("/predict/{data_id}")
-async def predict(data_id: str):
+async def predict(data_id: str, task: LlamaTask = LlamaTask.GENERATION):
     # fetch data
     result_df = app.entity_type.read(entity_ids=[data_id])
     data = result_df.get("data_feature")[0]
@@ -51,7 +51,7 @@ async def predict(data_id: str):
         }
     )
 
-    input_data = Models.get_input_for_model_name(MODEL_NAME, data)
+    input_data = Models.get_input_for_model_name(MODEL_NAME, data, task)
     json_data = json.dumps(input_data)
 
     http_body = httpbody_pb2.HttpBody(data=json_data.encode("utf-8"), content_type="application/json")
@@ -62,40 +62,3 @@ async def predict(data_id: str):
     response = prediction_client.raw_predict(request)
 
     return {"data": data, "prediction": json.loads(response.data)}
-
-
-class Models(Enum):
-    LLAMA_3_1 = "llama3.1"
-    BART_LARGE_MNLI = "bart-large-mnli"
-
-    @classmethod
-    def list(cls) -> List[str]:
-        return [model.value for model in Models]
-
-    @classmethod
-    def get_input_for_model_name(cls, model_name: str, input: str) -> Dict[str, Any]:
-        if model_name == Models.LLAMA_3_1.value:
-            input_dict = deepcopy(LLAMA_3_1_INPUT_TEMPLATE)
-            input_dict["prompt"] = input
-            return input_dict
-
-        if model_name == Models.BART_LARGE_MNLI.value:
-            input_dict = deepcopy(BART_MNLI_INPUT_TEMPLATE)
-            input_dict["sequences"] = input
-            return input_dict
-
-        raise Exception(f"Model {model_name} not supported! Supported models: {Models.list()}")
-
-
-LLAMA_3_1_INPUT_TEMPLATE = {
-    "prompt": None,
-    "max_tokens": 50,
-    "temperature": 1.0,
-    "top_p": 1.0,
-    "top_k": 1
-}
-
-BART_MNLI_INPUT_TEMPLATE = {
-    "sequences": None,
-    "candidate_labels": ["mobile", "website", "billing", "account access"]
-}

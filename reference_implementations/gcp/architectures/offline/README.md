@@ -41,9 +41,9 @@ To add a data point to the SQL database, use the `add_data_point` script:
 python -m add_data_point "test data point 1"
 ```
 
-To import those data points into the Feature Store, run `import_data`:
+To import those data points into the Feature Store, run `import_data_to_fs`:
 ```shell
-python -m import_data
+python -m import_data_to_fs
 ```
 
 It will output the data points that are currently stored in the feature store
