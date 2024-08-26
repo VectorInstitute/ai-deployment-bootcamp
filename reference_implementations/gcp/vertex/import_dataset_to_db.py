@@ -1,8 +1,9 @@
+import json
+import argparse
+
 from google.cloud import bigquery
 
-import json
 from constants import TFVARS
-import argparse
 
 
 storage_directory = "../../../data"
@@ -12,7 +13,7 @@ with open(f"{storage_directory}/meta.json", "r") as f:
 keys = meta_data.keys()
 
 parser = argparse.ArgumentParser(description="Parser for cmdline arguments")
-parser.add_argument('--datasetname', type=str, required=True, help=f"choose from {str(list(keys))}")
+parser.add_argument("--datasetname", type=str, required=True, help=f"choose from {str(list(keys))}")
 args = parser.parse_args()
 
 upload_data = {}
@@ -37,7 +38,7 @@ for lid in last_id_query.result():
 last_id = last_id if last_id is not None else 0
 data_list = []
 for i in range(len(df)):
-    if task_type == ("Summarization"):
+    if task_type == "Summarization":
         data = df[i][meta_data[args.datasetname]["data"]]
 
     elif task_type == "Translation":

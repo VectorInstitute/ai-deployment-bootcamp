@@ -2,12 +2,11 @@ import base64
 import json
 import os
 import traceback
-from copy import deepcopy
-from enum import Enum
-from typing import Dict, List, Any
 
 from google.api import httpbody_pb2
 from google.cloud import aiplatform_v1, aiplatform, bigquery
+
+from models import LlamaTask, Models
 
 
 ENDPOINT_ID = os.environ.get("ENDPOINT_ID")
@@ -28,6 +27,7 @@ def process(event, context):
         print(f"Decoded event data: {event_data}")
         json_data = json.loads(event_data)
         data_id = json_data["id"]
+        task = json_data.get("task", LlamaTask.GENERATION.value)
 
         print(f"Pulling data with id {data_id} from the feature store")
 
@@ -50,7 +50,7 @@ def process(event, context):
             }
         )
 
-        input_data = Models.get_input_for_model_name(MODEL_NAME, data)
+        input_data = Models.get_input_for_model_name(MODEL_NAME, data, LlamaTask(task))
         json_input_data = json.dumps(input_data)
 
         print(f"Sending input data to the endpoint id {ENDPOINT_ID}: {json_input_data}")
@@ -86,40 +86,3 @@ def process(event, context):
 
     except Exception:
         print(f"[ERROR] {traceback.format_exc()}")
-
-
-class Models(Enum):
-    LLAMA_3_1 = "llama3.1"
-    BART_LARGE_MNLI = "bart-large-mnli"
-
-    @classmethod
-    def list(cls) -> List[str]:
-        return [model.value for model in Models]
-
-    @classmethod
-    def get_input_for_model_name(cls, model_name: str, input: str) -> Dict[str, Any]:
-        if model_name == Models.LLAMA_3_1.value:
-            input_dict = deepcopy(LLAMA_3_1_INPUT_TEMPLATE)
-            input_dict["prompt"] = input
-            return input_dict
-
-        if model_name == Models.BART_LARGE_MNLI.value:
-            input_dict = deepcopy(BART_MNLI_INPUT_TEMPLATE)
-            input_dict["sequences"] = input
-            return input_dict
-
-        raise Exception(f"Model {model_name} not supported! Supported models: {Models.list()}")
-
-
-LLAMA_3_1_INPUT_TEMPLATE = {
-    "prompt": None,
-    "max_tokens": 50,
-    "temperature": 1.0,
-    "top_p": 1.0,
-    "top_k": 1
-}
-
-BART_MNLI_INPUT_TEMPLATE = {
-    "sequences": None,
-    "candidate_labels": ["mobile", "website", "billing", "account access"]
-}

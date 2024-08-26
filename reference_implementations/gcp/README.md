@@ -55,3 +55,55 @@ From here you have two choices:
 [architectures/online/README.md](architectures/online/README.md) guide.
 - If you need an offline (batch) inferencing architecture, please follow the
 [architectures/offline/README.md](architectures/offline/README.md) guide.
+
+## Working with Datasets
+
+We provide one sample dataset to be used as a test (`CNN_DailyMail`, details below), but feel free to
+change the code and experiment with other datasets as needed.
+
+The [CNN_DailyMail](../../data/CNN_DailyMail) dataset is a machine summarization dataset containing
+news articles and a summary of each one of them. We have built a summarization predictor using
+[Llama 3.1 from Model Garden](use_model_from_garden.md), here is how to use it.
+
+First, make sure you deploy the model and the endpoint is working by calling the script below
+with the endpoint id:
+```shell
+python -m test_endpoint inputs/llama3.1_summarization.json 6728657119244976128
+```
+
+In the output text from the model that the script prints, there should be a section stating the
+text below, followed by the summary:
+```text
+\\nOutput:\\nHere is a summary of the text in under 100 words:
+```
+
+Next, make sure you have followed one of the guides under 
+[Make the Inferencing Architecture](#make-the-inferencing-architecture) and have a pipeline
+up and running. Then, let's import the dataset to the DB so the data can be used by the pipeline:
+```shell
+python -m import_dataset_to_db --datasetname CNN_DailyMail_sample
+```
+
+Here we are using a sample of the dataset, but you can import the whole dataset if you wish.
+
+Next, import the data from the DB into the Feature Store:
+```shell
+python -m import_data_to_fs
+```
+
+Now the data is ready to be inferenced on. There is a `task` parameter in the APIs to trigger
+the summarization prompt template, so you just need to pass in that parameter with value
+`summarization` to indicate you want a summarization of the input data (instead of text
+generation).
+
+For the online pipeline, you can run:
+```shell
+http://<instance-ip>:8080/predict/1?task=summarization
+```
+For the offline pipeline, you can run:
+```shell
+python -m publish "{\"id\": \"1\",\"task\":\"summarization\"}"
+```
+
+If you're just running tests and experiments, don't forget to destroy all terraform
+resources and undeploy the model endpoint once you're done.
