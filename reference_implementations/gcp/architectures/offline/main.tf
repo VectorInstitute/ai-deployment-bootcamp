@@ -86,6 +86,12 @@ resource "google_project_iam_member" "storage_object_viewer" {
   member  = "serviceAccount:${google_service_account.sa.email}"
 }
 
+resource "google_project_iam_member" "storage_bucket_reader" {
+  project = var.project
+  role    = "roles/storage.insightsCollectorService"
+  member  = "serviceAccount:${google_service_account.sa.email}"
+}
+
 resource "google_project_iam_member" "ai_platform_user" {
   project = var.project
   role    = "roles/aiplatform.user"
