@@ -1,6 +1,6 @@
 variable "region" {
   type = string
-}
+} 
 
 variable "project" {
   type = string
@@ -92,6 +92,158 @@ resource "google_project_iam_member" "compute_instances_get" {
   member  = "serviceAccount:${google_service_account.sa.email}"
 }
 
+# Service accounts for team members
+resource "google_service_account" "aj_sa" {
+  account_id   = "${var.short_project_prefix}-aj-sa"
+  display_name = "AJ Service Account"
+  project      = var.project
+}
+
+resource "google_service_account" "my_sa" {
+  account_id   = "${var.short_project_prefix}-my-sa"
+  display_name = "MY Service Account"
+  project      = var.project
+}
+
+resource "google_service_account" "db_sa" {
+  account_id   = "${var.short_project_prefix}-db-sa"
+  display_name = "DB Service Account"
+  project      = var.project
+}
+
+resource "google_service_account" "co_sa" {
+  account_id   = "${var.short_project_prefix}-co-sa"
+  display_name = "CO Service Account"
+  project      = var.project
+}
+
+resource "google_service_account" "lb_sa" {
+  account_id   = "${var.short_project_prefix}-lb-sa"
+  display_name = "LB Service Account"
+  project      = var.project
+}
+
+resource "google_service_account" "ha_sa" {
+  account_id   = "${var.short_project_prefix}-ha-sa"
+  display_name = "HA Service Account"
+  project      = var.project
+}
+
+# Assigning permissions to service accounts for aj
+resource "google_project_iam_member" "storage_object_viewer_aj" {
+  project = var.project
+  role    = "roles/storage.objectViewer"
+  member  = "serviceAccount:${google_service_account.aj_sa.email}"
+}
+
+resource "google_project_iam_member" "ai_platform_user_aj" {
+  project = var.project
+  role    = "roles/aiplatform.user"
+  member  = "serviceAccount:${google_service_account.aj_sa.email}"
+}
+
+resource "google_project_iam_member" "compute_instances_get_aj" {
+  project = var.project
+  role    = "roles/compute.instanceAdmin.v1"
+  member  = "serviceAccount:${google_service_account.aj_sa.email}"
+}
+
+# Assigning permissions to service accounts for my
+resource "google_project_iam_member" "storage_object_viewer_my" {
+  project = var.project
+  role    = "roles/storage.objectViewer"
+  member  = "serviceAccount:${google_service_account.my_sa.email}"
+}
+
+resource "google_project_iam_member" "ai_platform_user_my" {
+  project = var.project
+  role    = "roles/aiplatform.user"
+  member  = "serviceAccount:${google_service_account.my_sa.email}"
+}
+
+resource "google_project_iam_member" "compute_instances_get_my" {
+  project = var.project
+  role    = "roles/compute.instanceAdmin.v1"
+  member  = "serviceAccount:${google_service_account.my_sa.email}"
+}
+
+# Assigning permissions to service accounts for db
+resource "google_project_iam_member" "storage_object_viewer_db" {
+  project = var.project
+  role    = "roles/storage.objectViewer"
+  member  = "serviceAccount:${google_service_account.db_sa.email}"
+}
+
+resource "google_project_iam_member" "ai_platform_user_db" {
+  project = var.project
+  role    = "roles/aiplatform.user"
+  member  = "serviceAccount:${google_service_account.db_sa.email}"
+}
+
+resource "google_project_iam_member" "compute_instances_get_db" {
+  project = var.project
+  role    = "roles/compute.instanceAdmin.v1"
+  member  = "serviceAccount:${google_service_account.db_sa.email}"
+}
+
+# Assigning permissions to service accounts for co
+resource "google_project_iam_member" "storage_object_viewer_co" {
+  project = var.project
+  role    = "roles/storage.objectViewer"
+  member  = "serviceAccount:${google_service_account.co_sa.email}"
+}
+
+resource "google_project_iam_member" "ai_platform_user_co" {
+  project = var.project
+  role    = "roles/aiplatform.user"
+  member  = "serviceAccount:${google_service_account.co_sa.email}"
+}
+
+resource "google_project_iam_member" "compute_instances_get_co" {
+  project = var.project
+  role    = "roles/compute.instanceAdmin.v1"
+  member  = "serviceAccount:${google_service_account.co_sa.email}"
+}
+
+# Assigning permissions to service accounts for lb
+resource "google_project_iam_member" "storage_object_viewer_lb" {
+  project = var.project
+  role    = "roles/storage.objectViewer"
+  member  = "serviceAccount:${google_service_account.lb_sa.email}"
+}
+
+resource "google_project_iam_member" "ai_platform_user_lb" {
+  project = var.project
+  role    = "roles/aiplatform.user"
+  member  = "serviceAccount:${google_service_account.lb_sa.email}"
+}
+
+resource "google_project_iam_member" "compute_instances_get_lb" {
+  project = var.project
+  role    = "roles/compute.instanceAdmin.v1"
+  member  = "serviceAccount:${google_service_account.lb_sa.email}"
+}
+
+# Assigning permissions to service accounts for ha
+resource "google_project_iam_member" "storage_object_viewer_ha" {
+  project = var.project
+  role    = "roles/storage.objectViewer"
+  member  = "serviceAccount:${google_service_account.ha_sa.email}"
+}
+
+resource "google_project_iam_member" "ai_platform_user_ha" {
+  project = var.project
+  role    = "roles/aiplatform.user"
+  member  = "serviceAccount:${google_service_account.ha_sa.email}"
+}
+
+resource "google_project_iam_member" "compute_instances_get_ha" {
+  project = var.project
+  role    = "roles/compute.instanceAdmin.v1"
+  member  = "serviceAccount:${google_service_account.ha_sa.email}"
+}
+
+
 ### END SERVICE ACCOUNT PERMISSIONS
 
 resource "google_bigquery_dataset" "database" {
@@ -114,16 +266,25 @@ resource "google_bigquery_table" "predictions_table" {
 }
 
 resource "google_compute_firewall" "ssh" {
-  name    = "ssh-firewall"
-  network = "default"
+  name    = "allow-ssh"
+  network = google_compute_network.my_network.name
 
   allow {
     protocol = "tcp"
     ports    = ["22"]
   }
 
-  source_ranges = ["0.0.0.0/0"] 
-  target_tags   = ["sshfw"]
+  target_tags = [
+    "sshfw",
+    "${var.short_project_prefix}-arooj",
+    "${var.short_project_prefix}-mingchen",
+    "${var.short_project_prefix}-daniel",
+    "${var.short_project_prefix}-chike",
+    "${var.short_project_prefix}-louisphilippe",
+    "${var.short_project_prefix}-hadi"
+  ]
+
+  source_ranges = ["0.0.0.0/0"] # Be cautious with this; it allows access from any IP. Adjust as necessary.
 }
 
 resource "google_compute_firewall" "webserver" {
@@ -246,6 +407,20 @@ resource "google_compute_network" "my_network" {
   project                 = var.project
 }
 
+resource "google_compute_firewall" "allow_jupyter" {
+  name    = "allow-jupyter"
+  network = google_compute_network.my_network.name
+
+  allow {
+    protocol = "tcp"
+    ports    = ["8080", "8888"]  // Add any other ports you use for JupyterLab
+  }
+
+  // Adjust the source_ranges as needed for security. 
+  // This example allows access from any IP, which might not be suitable for all use cases.
+  source_ranges = ["0.0.0.0/0"]
+}
+
 resource "google_compute_subnetwork" "my_subnetwork" {
   name          = "${var.short_project_prefix}-subnetwork"
   network       = google_compute_network.my_network.id
@@ -273,82 +448,381 @@ locals {
     shortened = "${var.short_project_prefix}-${substr(replace(split("@", email)[0], ".", "-"), 0, 1)}${
       length(split("-", replace(split("@", email)[0], ".", "-"))) > 1 ? 
       substr(split("-", replace(split("@", email)[0], ".", "-"))[1], 0, 1) : 
-      ""}-${substr(md5(email), 0, 6)}"
+      ""}"
   }}
 }
 
-resource "google_service_account" "bci" {
-  for_each = local.team_info
-
-  account_id   = each.value.shortened
-  display_name = "Service Account for ${each.key}"
-  project      = var.project
+resource "google_service_account_iam_binding" "aj_sa_binding" {
+  service_account_id = google_service_account.aj_sa.name
+  role               = "roles/iam.serviceAccountUser"
+  members            = [
+    "user:arooj_ahmed.qureshi@bell.ca",
+    "user:louisphilippe.bosse@bell.ca"
+  ]
 }
 
-resource "google_workbench_instance" "instance" {
-  for_each = local.team_info
+resource "google_service_account_iam_binding" "my_sa_binding" {
+  service_account_id = google_service_account.my_sa.name
+  role               = "roles/iam.serviceAccountUser"
+  members            = [
+    "user:mingchen.yang@bell.ca",
+    "user:louisphilippe.bosse@bell.ca"
+  ]
+}
 
-  # Adjusted to use a descriptive username. Assuming each.key is the username you want.
-  name     = "${var.short_project_prefix}-workbench-${each.value.username}"
-  location = "${var.region}-a"
-  project  = var.project
+resource "google_service_account_iam_binding" "db_sa_binding" {
+  service_account_id = google_service_account.db_sa.name
+  role               = "roles/iam.serviceAccountUser"
+  members            = [
+    "user:daniel.bucci@bell.ca",
+    "user:louisphilippe.bosse@bell.ca"
+  ]
+}
 
-  gce_setup {
-    machine_type = "n1-standard-4"
-    accelerator_configs {
-      type       = "NVIDIA_TESLA_T4"
-      core_count = 1
-    }
+resource "google_service_account_iam_binding" "co_sa_binding" {
+  service_account_id = google_service_account.co_sa.name
+  role               = "roles/iam.serviceAccountUser"
+  members            = [
+    "user:chike.odenigbo@bell.ca",
+    "user:louisphilippe.bosse@bell.ca"
+  ]
+}
 
-    shielded_instance_config {
-      enable_secure_boot         = true
-      enable_vtpm                = true
-      enable_integrity_monitoring = true
-    }
+resource "google_service_account_iam_binding" "lb_sa_binding" {
+  service_account_id = google_service_account.lb_sa.name
+  role               = "roles/iam.serviceAccountUser"
+  members            = [
+    "user:louisphilippe.bosse@bell.ca"
+  ]
+}
 
-    disable_public_ip = false
+resource "google_service_account_iam_binding" "ha_sa_binding" {
+  service_account_id = google_service_account.ha_sa.name
+  role               = "roles/iam.serviceAccountUser"
+  members            = [
+    "user:hadi.abdi_ghavidel@bell.ca",
+    "user:louisphilippe.bosse@bell.ca"
+  ]
+}
 
-    service_accounts {
-      email = google_service_account.bci[each.key].email
-    }
+# Assigns the roles/compute.osLoginExternalUser role to the user arooj_ahmed.qureshi@bell.ca
+# This role allows the specified user to use OS Login to authenticate to instances
+# where OS Login is enabled.
+#resource "google_project_iam_member" "user_os_login_arooj" {
+#  project = var.project
+#  role    = "roles/compute.osLoginExternalUser"
+#  member  = "user:arooj_ahmed.qureshi@bell.ca"
+#}
 
-    boot_disk {
-      disk_size_gb    = 310
-      disk_type       = "PD_SSD"
-      disk_encryption = "GMEK"
-    }
+# Assigns the roles/compute.osLoginExternalUser role to the user mingchen.yang@bell.ca
+#resource "google_project_iam_member" "user_os_login_mingchen" {
+#  project = var.project
+#  role    = "roles/compute.osLoginExternalUser"
+#  member  = "user:mingchen.yang@bell.ca"
+#}
 
-    data_disks {
-      disk_size_gb    = 330
-      disk_type       = "PD_SSD"
-      disk_encryption = "GMEK"
-    }
+# Assigns the roles/compute.osLoginExternalUser role to the user daniel.bucci@bell.ca
+#resource "google_project_iam_member" "user_os_login_daniel" {
+#  project = var.project
+#  role    = "roles/compute.osLoginExternalUser"
+#  member  = "user:daniel.bucci@bell.ca"
+#}
 
-    network_interfaces {
-      network      = google_compute_network.my_network.id
-      subnet       = google_compute_subnetwork.my_subnetwork.id
-      nic_type     = "GVNIC"
-      access_configs {
-        external_ip = google_compute_address.static.address
-      }
-    }
+# Assigns the roles/compute.osLoginExternalUser role to the user chike.odenigbo@bell.ca
+#resource "google_project_iam_member" "user_os_login_chike" {
+#  project = var.project
+#  role    = "roles/compute.osLoginExternalUser"
+#  member  = "user:chike.odenigbo@bell.ca"
+#}
 
-    metadata = {
-      terraform = "true"
-    }
+# Assigns the roles/compute.osLoginExternalUser role to the user louisphilippe.bosse@bell.ca
+#resource "google_project_iam_member" "user_os_login_louisphilippe" {
+#  project = var.project
+#  role    = "roles/compute.osLoginExternalUser"
+#  member  = "user:louisphilippe.bosse@bell.ca"
+#}
 
-    enable_ip_forwarding = true
+# Assigns the roles/compute.osLoginExternalUser role to the user hadi.abdi_ghavidel@bell.ca
+#resource "google_project_iam_member" "user_os_login_hadi" {
+#  project = var.project
+#  role    = "roles/compute.osLoginExternalUser"
+#  member  = "user:hadi.abdi_ghavidel@bell.ca"
+#}
 
-    tags = ["${var.short_project_prefix}-${each.key}"]
+resource "google_notebooks_instance" "instance_arooj" {
+  name          = "${var.short_project_prefix}-workbench-arooj"
+  location      = "${var.region}-a"
+  machine_type  = "n1-standard-4"
+
+  vm_image {
+    project      = "deeplearning-platform-release"
+    image_family = "tf-latest-cpu"
   }
 
-  disable_proxy_access = true
+  instance_owners = [
+    "arooj_ahmed.qureshi@bell.ca"
+  ]
+  service_account = "${google_service_account.aj_sa.email}"
 
-  instance_owners = [each.key]
+  install_gpu_driver = true
+  boot_disk_type     = "PD_SSD"
+  boot_disk_size_gb = 110
+
+  no_public_ip     = false
+  no_proxy_access  = false
+
+  network = google_compute_network.my_network.id
+  subnet  = google_compute_subnetwork.my_subnetwork.id
 
   labels = {
     project = var.project
   }
 
-  desired_state = "INACTIVE"
+  metadata = {
+    terraform = "true"
+  }
+  service_account_scopes = [
+    "https://www.googleapis.com/auth/bigquery",
+    "https://www.googleapis.com/auth/devstorage.read_write",
+    "https://www.googleapis.com/auth/cloud-platform",
+    "https://www.googleapis.com/auth/userinfo.email"
+  ]
+
+  tags = ["${var.short_project_prefix}-arooj"]
+
+  disk_encryption = "GMEK"
+  
+  desired_state   = "INACTIVE"
+}
+
+
+resource "google_notebooks_instance" "instance_mingchen" {
+  name          = "${var.short_project_prefix}-workbench-mingchen"
+  location      = "${var.region}-a"
+  machine_type  = "n1-standard-4"
+
+  vm_image {
+    project      = "deeplearning-platform-release"
+    image_family = "tf-latest-cpu"
+  }
+
+  instance_owners = [
+    "mingchen.yang@bell.ca"
+  ]
+  service_account = "${google_service_account.my_sa.email}"
+
+  install_gpu_driver = true
+  boot_disk_type     = "PD_SSD"
+  boot_disk_size_gb = 110
+
+  no_public_ip     = false
+  no_proxy_access  = false
+
+  network = google_compute_network.my_network.id
+  subnet  = google_compute_subnetwork.my_subnetwork.id
+
+  labels = {
+    project = var.project
+  }
+
+  metadata = {
+    terraform = "true"
+  }
+  service_account_scopes = [
+    "https://www.googleapis.com/auth/bigquery",
+    "https://www.googleapis.com/auth/devstorage.read_write",
+    "https://www.googleapis.com/auth/cloud-platform",
+    "https://www.googleapis.com/auth/userinfo.email"
+  ]
+
+  tags = ["${var.short_project_prefix}-mingchen"]
+
+  disk_encryption = "GMEK"
+  
+  desired_state   = "INACTIVE"
+}
+
+resource "google_notebooks_instance" "instance_daniel" {
+  name          = "${var.short_project_prefix}-workbench-daniel"
+  location      = "${var.region}-a"
+  machine_type  = "n1-standard-4"
+
+  vm_image {
+    project      = "deeplearning-platform-release"
+    image_family = "tf-latest-cpu"
+  }
+
+  instance_owners = [
+    "daniel.bucci@bell.ca"
+  ]
+  service_account = "${google_service_account.db_sa.email}"
+
+  install_gpu_driver = true
+  boot_disk_type     = "PD_SSD"
+  boot_disk_size_gb = 110
+
+  no_public_ip     = false
+  no_proxy_access  = false
+
+  network = google_compute_network.my_network.id
+  subnet  = google_compute_subnetwork.my_subnetwork.id
+
+  labels = {
+    project = var.project
+  }
+
+  metadata = {
+    terraform = "true"
+  }
+  service_account_scopes = [
+    "https://www.googleapis.com/auth/bigquery",
+    "https://www.googleapis.com/auth/devstorage.read_write",
+    "https://www.googleapis.com/auth/cloud-platform",
+    "https://www.googleapis.com/auth/userinfo.email"
+  ]
+
+  tags = ["${var.short_project_prefix}-daniel"]
+
+  disk_encryption = "GMEK"
+  
+  desired_state   = "INACTIVE"
+}
+
+resource "google_notebooks_instance" "instance_chike" {
+  name          = "${var.short_project_prefix}-workbench-chike"
+  location      = "${var.region}-a"
+  machine_type  = "n1-standard-4"
+
+  vm_image {
+    project      = "deeplearning-platform-release"
+    image_family = "tf-latest-cpu"
+  }
+
+  instance_owners = [
+    "chike.odenigbo@bell.ca"
+  ]
+  service_account = "${google_service_account.co_sa.email}"
+
+  install_gpu_driver = true
+  boot_disk_type     = "PD_SSD"
+  boot_disk_size_gb = 110
+
+  no_public_ip     = false
+  no_proxy_access  = false
+
+  network = google_compute_network.my_network.id
+  subnet  = google_compute_subnetwork.my_subnetwork.id
+
+  labels = {
+    project = var.project
+  }
+
+  metadata = {
+    terraform = "true"
+  }
+  service_account_scopes = [
+    "https://www.googleapis.com/auth/bigquery",
+    "https://www.googleapis.com/auth/devstorage.read_write",
+    "https://www.googleapis.com/auth/cloud-platform",
+    "https://www.googleapis.com/auth/userinfo.email"
+  ]
+
+  tags = ["${var.short_project_prefix}-chike"]
+
+  disk_encryption = "GMEK"
+  
+  desired_state   = "INACTIVE"
+}
+#louisphilippe_bosse@cloudshell:~$ gcloud projects add-iam-policy-binding bell-canada-inc --member='user:louisphilippe.bosse@bell.ca' --role='roles/compute.osLoginExternalUser'
+#ERROR: (gcloud.projects.add-iam-policy-binding) INVALID_ARGUMENT: Request contains an invalid argument.
+resource "google_notebooks_instance" "instance_louisphilippe" {
+  name          = "${var.short_project_prefix}-workbench-louisphilippe"
+  location      = "${var.region}-a"
+  machine_type  = "n1-standard-4"
+
+  vm_image {
+    project      = "deeplearning-platform-release"
+    image_family = "tf-latest-cpu"
+  }
+
+  instance_owners = ["louisphilippe.bosse@bell.ca"]
+  service_account = "${google_service_account.lb_sa.email}"
+
+  install_gpu_driver = true
+  boot_disk_type     = "PD_SSD"
+  boot_disk_size_gb = 110
+
+  no_public_ip     = false
+  no_proxy_access  = false
+
+  network = google_compute_network.my_network.id
+  subnet  = google_compute_subnetwork.my_subnetwork.id
+
+  labels = {
+    project = var.project
+  }
+
+  metadata = {
+    terraform = "true"
+  }
+
+  service_account_scopes = [
+    "https://www.googleapis.com/auth/bigquery",
+    "https://www.googleapis.com/auth/devstorage.read_write",
+    "https://www.googleapis.com/auth/cloud-platform",
+    "https://www.googleapis.com/auth/userinfo.email"
+  ]
+
+  tags = ["${var.short_project_prefix}-louisphilippe"]
+
+  disk_encryption = "GMEK"
+  
+  desired_state   = "INACTIVE"
+}
+
+resource "google_notebooks_instance" "instance_hadi" {
+  name          = "${var.short_project_prefix}-notebooks-hadi"
+  location      = "${var.region}-a"
+  machine_type  = "n1-standard-4"
+
+  vm_image {
+    project      = "deeplearning-platform-release"
+    image_family = "tf-latest-cpu"
+  }
+
+  instance_owners = [
+    "hadi.abdi_ghavidel@bell.ca"
+  ]
+  service_account = "${google_service_account.ha_sa.email}"
+
+  install_gpu_driver = true
+  boot_disk_type     = "PD_SSD"
+  boot_disk_size_gb = 110
+
+  no_public_ip     = false
+  no_proxy_access  = false
+
+  network = google_compute_network.my_network.id
+  subnet  = google_compute_subnetwork.my_subnetwork.id
+
+  labels = {
+    project = var.project
+  }
+
+  metadata = {
+    terraform = "true"
+  }
+
+  service_account_scopes = [
+    "https://www.googleapis.com/auth/bigquery",
+    "https://www.googleapis.com/auth/devstorage.read_write",
+    "https://www.googleapis.com/auth/cloud-platform",
+    "https://www.googleapis.com/auth/userinfo.email"
+  ]
+
+  tags = ["${var.short_project_prefix}-hadi"]
+
+  disk_encryption = "GMEK"
+  
+  desired_state   = "INACTIVE"
 }
