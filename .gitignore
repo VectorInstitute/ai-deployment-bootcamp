@@ -7,6 +7,7 @@
 *.terraform/
 *terraform.tfstate*
 *.terraform.tfstate.lock.info
+*.tfvars
 
 *bart-large-mnli/
 *ml-api.zip
