@@ -116,7 +116,7 @@ resource "google_bigquery_table" "ground_truth_table" {
 }
 
 resource "google_compute_firewall" "ssh" {
-  name    = "ssh-firewall"
+  name    = "ssh-firewall-${var.env}"
   network = "default"
 
   allow {
@@ -129,7 +129,7 @@ resource "google_compute_firewall" "ssh" {
 }
 
 resource "google_compute_firewall" "webserver" {
-  name    = "http-https-firewall"
+  name    = "http-https-firewall-${var.env}"
   network = "default"
 
   allow {
@@ -142,7 +142,7 @@ resource "google_compute_firewall" "webserver" {
 }
 
 resource "google_compute_address" "static_ip" {
-  name = "website-address"
+  name = "website-address-${var.env}"
 }
 
 resource "google_storage_bucket" "api_source" {
