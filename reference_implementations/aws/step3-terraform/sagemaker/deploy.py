@@ -1,4 +1,5 @@
 import boto3
+import json
 import sagemaker
 from sagemaker.huggingface import HuggingFaceModel
 from sagemaker.predictor import Predictor
@@ -6,14 +7,18 @@ from datetime import datetime
 from sagemaker.serializers import JSONSerializer
 from sagemaker.deserializers import JSONDeserializer
 
+
 prefix = "paraphrase-bert-en"
 hardware="inf1"
 date_string = datetime.now().strftime("%Y%m-%d%H-%M%S")
 compilation_job_name = f"paraphrase-bert-en-{hardware}-" + date_string
 
 sagemaker_session = sagemaker.Session()
+
+# This is the bucket that we uploaded model's artifacts to
 sess_bucket = sagemaker_session.default_bucket()
 print(f"{sess_bucket=}")
+
 output_model_path = f"s3://{sess_bucket}/{prefix}/{hardware}-model/"
 
 try:
@@ -24,7 +29,8 @@ except ValueError:
 
 print(f"Role: \n{role=}")
 
-model_s3_url = f"s3://sagemaker-us-east-1-025066243062/bert-seq-classification/traced-model/traced_model.tar.gz"
+# TODO: Replace with the path to your traced model artifact for compilation
+model_s3_url = f"s3://sagemaker-us-east-1-025066243062/bert-seq-classification/traced_model.tar.gz"
 
 
 # versions are found in model's HF page
@@ -44,6 +50,7 @@ hf_model  = HuggingFaceModel(
 
 print("HF Model created. Proceeding to compilation...")
 
+# Models need to be compiled for Inferentia chips
 compiled_model = hf_model.compile(
     target_instance_family=f"ml_{hardware}",
     input_shape={"input_ids": [1, 512], "attention_mask": [1, 512]},
@@ -58,14 +65,14 @@ compiled_model = hf_model.compile(
 
 print("Compilation job name: {} \nOutput model path in S3: {}".format(compilation_job_name, output_model_path))
 
-# TODO: Pro-tip - look into other parameters of deploy to know more about different endpoint types
-compiled_inf1_predictor = compiled_model.deploy(
-    instance_type="ml.inf1.xlarge",
-    initial_instance_count=1,
-    endpoint_name=f"paraphrase-bert-en-{hardware}-{date_string}",
-    serializer=JSONSerializer(),
-    deserializer=JSONDeserializer(),
-    wait=False
-)
+# # TODO: Pro-tip - look into other parameters of deploy to know more about different endpoint types
+# compiled_inf1_predictor = compiled_model.deploy(
+#     instance_type="ml.inf1.xlarge",
+#     initial_instance_count=1,
+#     endpoint_name=f"paraphrase-bert-en-{hardware}-{date_string}",
+#     serializer=JSONSerializer(),
+#     deserializer=JSONDeserializer(),
+#     wait=False
+# )
 
-print(f"Model deployed: {compiled_inf1_predictor.endpoint_name}")
+# print(f"Model deployed: {compiled_inf1_predictor.endpoint_name}")

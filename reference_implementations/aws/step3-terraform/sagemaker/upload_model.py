@@ -52,11 +52,11 @@ subprocess.run(command, shell=True, check=True)
 # We upload the model's tar.gz file to Amazon S3, where the compilation job will download it from
 normal_model_url = sagemaker_session.upload_data(
     path="normal_model/normal_model.tar.gz",
-    key_prefix="bert-seq-classification/normal-model",
+    key_prefix="bert-seq-classification",
 )
 
 traced_model_url = sagemaker_session.upload_data(
     path="traced_model/traced_model.tar.gz",
-    key_prefix="bert-seq-classification/traced-model",
+    key_prefix="bert-seq-classification",
 )
 
