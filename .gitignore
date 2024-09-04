@@ -10,3 +10,6 @@
 
 *bart-large-mnli/
 *paraphrase-bert/
+
+__pycache__/
+*.zip
