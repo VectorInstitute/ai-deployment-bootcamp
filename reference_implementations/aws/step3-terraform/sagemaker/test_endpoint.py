@@ -9,7 +9,7 @@ from fastapi.responses import JSONResponse
 from sagemaker.predictor import Predictor
 
 # Replace with your SageMaker endpoint name
-endpoint_name = 'paraphrase-bert-en-g4dn-202408-2310-3917'
+endpoint_name = 'paraphrase-bert-en-endpoint'
 region = "us-east-1"
 
 config = Config(

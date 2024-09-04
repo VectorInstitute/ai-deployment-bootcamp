@@ -9,9 +9,8 @@ resource "aws_sagemaker_model" "model" {
       "SAGEMAKER_CONTAINER_LOG_LEVEL" = "20"
       "SAGEMAKER_PROGRAM"             = "inference.py"
       "SAGEMAKER_REGION"              = "${var.region}"
-      "SAGEMAKER_SUBMIT_DIRECTORY"    = "/opt/ml/model/code"
+      "SAGEMAKER_SUBMIT_DIRECTORY"    = "/opt/ml/model"
     }
-
     
   }
 }

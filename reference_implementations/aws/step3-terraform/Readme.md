@@ -67,7 +67,14 @@ aws s3api put-bucket-versioning \
 
 **First lets download model artifacts**
 
-`code` folder contains `inference.py` which will be used by sagemaker model endpoint to generate model inference from API call and `requirements.txt` for python dependency. 
+`code` folder contains `inference.py` which will be used by sagemaker model endpoint to generate model inference from API call and `requirements.txt` for python dependency. Copy them to your model directory. Your model directory structure (and hence the zip file generated) should look like this:
+```
+traced_model-ml_inf1.tar.gz/
+├── code/
+│   └── inference.py
+│   └── requirement.txt
+└── paraphrase_bert.pt
+```
 
 The model should also contain the model artifacts like model config and actual model. Here actual model files like `pytorch_model.bin` and `config.json` are absent. You should get it from the link here [Paraphrase Classification Model with BERT](https://huggingface.co/Prompsit/paraphrase-bert-en/tree/main)
 
@@ -83,10 +90,10 @@ After successful running of `deploy.py`, the S3 URL for compiled model is printe
 **Compress Lambda function for deployment**
 
 ```bash
-zip -r lambda.zip ./lambda/* -j
+zip -r lambda.zip ./ml-api/* -j
 ```
 - `zip -r lambda.zip` : It creates a zip file named `lambda.zip`
-- `./lambda/*` : It specify the path of the files and folders inside the `lambda` directory. The `*` glob pattern is used to include all files and folders inside the `lambda` directory.
+- `./ml-api/*` : It specify the path of the files and folders inside the `ml-api` directory. The `*` glob pattern is used to include all files and folders inside the `lambda` directory.
 - `-j`: With this option, `zip` will store only the relative paths of the files, effectively flattening the folder structure inside the zip archive.
 
 
@@ -141,7 +148,7 @@ Outputs:
 api_gateway_url = "https://k3565nbkl6.execute-api.us-east-1.amazonaws.com/dev"
 ```
 
-Append `/sentiment` to the api url for getting the sentiment for financial text. Request method will be `POST`
+Append `/predict` to the api url for getting the sentiment for financial text. Request method will be `POST`
 
 ```bash
 

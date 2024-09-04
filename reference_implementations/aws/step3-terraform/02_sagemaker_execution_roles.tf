@@ -53,6 +53,7 @@ resource "aws_iam_policy" "sagemaker_execution_role_policy" {
           "s3:DeleteObject"
         ]
         Effect = "Allow"
+        # TODO: give permission to access S3 buckets - replace with your bucket names
         Resource = [
           "arn:aws:s3:::sagemaker-endpoint-deploy-tf-state-vector",
           "arn:aws:s3:::sagemaker-endpoint-deploy-tf-state-vector/*",
@@ -74,12 +75,11 @@ resource "aws_iam_policy" "sagemaker_execution_role_policy" {
           "logs:DescribeLogStreams",
           "logs:DescribeLogGroups",
           "logs:PutResourcePolicy",
-          "logs:UpdateLogDelivery"
+          "logs:UpdateLogDelivery",
+          "logs:FilterLogEvents"
         ]
         Effect = "Allow"
-        Resource = [
-          "arn:aws:logs:${var.region}:${local.aws_account_id}:log-group:/aws/sagemaker/*/*"
-        ]
+        Resource = "*"
       },
       {
         Action = [
@@ -92,9 +92,7 @@ resource "aws_iam_policy" "sagemaker_execution_role_policy" {
           "cloudwatch:PutMetricData"
         ]
         Effect = "Allow"
-        Resource = [
-          "arn:aws:logs:${var.region}:${local.aws_account_id}:log-group:/aws/sagemaker/*/*"
-        ]
+        Resource = "*"
       },
       {
         "Effect" : "Allow",
