@@ -76,8 +76,8 @@ def predict_fn(input_data, models):
         paraphrase_classification_logits = model_bert(*example_inputs)
     
     classes = ['paraphrase','not paraphrase']
-    paraphrase_prediction = paraphrase_classification_logits[0][0].argmax().item()
-    out_str = 'BERT predicts that "{}" and "{}" are {}'.format(sequence_0, sequence_1, classes[paraphrase_prediction])
+    # paraphrase_prediction = paraphrase_classification_logits[0][0].argmax().item()
+    out_str = 'Result logits: {}'.format(paraphrase_classification_logits)
     
     return out_str
 
