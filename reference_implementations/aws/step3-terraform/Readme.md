@@ -84,7 +84,7 @@ Here we have prepared two model artifacts: normal model and traced model. Traced
 
 **Now compile for `inf1` machines**
 
-After successful running of `deploy.py`, the S3 URL for compiled model is printed. Copy the s3 model artifacts link and place it into `sagemaker_model_data_s3_url` in `terraform.tfvars` file
+After successful running of `deploy.py`, the S3 URL for compiled model is printed. Copy the s3 model artifacts link and place it into `sagemaker_model_data_s3_url` in `terraform.tfvars` file. There's no need to repeat this step in the future unless you delete your tar.gz model from S3 bucket or change your model.
 
 
 **Compress Lambda function for deployment**
@@ -95,6 +95,8 @@ zip -r lambda.zip ./ml-api/* -j
 - `zip -r lambda.zip` : It creates a zip file named `lambda.zip`
 - `./ml-api/*` : It specify the path of the files and folders inside the `ml-api` directory. The `*` glob pattern is used to include all files and folders inside the `lambda` directory.
 - `-j`: With this option, `zip` will store only the relative paths of the files, effectively flattening the folder structure inside the zip archive.
+
+Remember to repeat this step every time you change anything in your Lambda Functions.
 
 
 ## Step 3: Terraform deploy
@@ -138,7 +140,7 @@ terraform destroy
     - It will delete all the resources that were previously created using `terraform apply`. 
     - Terraform will ask for confirmation before actually destroying the resources to avoid accidental deletions.
 
-After successful deployment you will see something like below
+After successful deployment you will see something like below (if not, you can get your API Gateway URL from AWS console)
 
 ```bash
 Apply complete! Resources: 16 added, 0 changed, 0 destroyed.
@@ -152,11 +154,9 @@ Append `/predict` to the api url for getting the sentiment for financial text. R
 
 ```bash
 
-https://k3565nbkl6.execute-api.us-east-1.amazonaws.com/dev/sentiment
+https://k3565nbkl6.execute-api.us-east-1.amazonaws.com/dev/predict
 
-{
-    "text": "growth is strong and we have plenty of liquidity"
-}
+{"seq_0": "The fluffy white cat curled up on the cozy armchair, napping peacefully in the warm sunlight streaming through the window.", "seq_1": "Snuggling comfortably in the sunlit armchair, the soft, white cat dozed off, enjoying a tranquil nap."}
 
 Response
 
