@@ -1,0 +1,26 @@
+{
+	"CNN_DailyMail": {
+		"type": "Summarization",
+		"data": "article",
+		"gt": "highlights",
+		"link": "https://www.kaggle.com/datasets/gowrishankarp/newspaper-text-summarization-cnn-dailymail"
+	},
+	"CNN_DailyMail_sample": {
+		"type": "Summarization",
+		"data": "article",
+		"gt": "highlights",
+		"link": "https://www.kaggle.com/datasets/gowrishankarp/newspaper-text-summarization-cnn-dailymail"
+	},
+	"XSUM": {
+		"type": "Summarization",
+		"data": "document",
+		"gt": "summary",
+		"link": "https://github.com/EdinburghNLP/XSum/tree/master/XSum-Dataset"
+	},
+	"OPUS_Books":{
+		"type" : "Translation",
+		"data": ["translation","cs"],
+		"gt": ["translation","en"],
+		"link": "https://huggingface.co/datasets/Helsinki-NLP/opus_books"
+	}
+}
