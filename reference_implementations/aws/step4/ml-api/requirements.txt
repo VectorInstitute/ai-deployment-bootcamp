@@ -3,3 +3,8 @@ docker_py==1.10.6
 fastapi==0.111.1
 transformers==4.38.1
 uvicorn==0.30.3
+SQLAlchemy==2.0.30
+pg8000==1.31.2
+pandas==2.0.3
+pytfvars==1.0.3
+python-hcl2==4.3.4
