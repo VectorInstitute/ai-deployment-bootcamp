@@ -89,6 +89,11 @@ variable "rest_api_description" {
   description = "Description of the REST API"
 }
 
+variable "feature_group_name" {
+  type        = string
+  description = "Feature store name"
+}
+
 variable "master_username" {
   type = string
   description = "Redshift username"

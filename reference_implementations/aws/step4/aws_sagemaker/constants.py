@@ -1,4 +1,4 @@
-from sagemaker.utils import load_tfvars
+from aws_sagemaker.utils import load_tfvars
 
 
 TFVARS_PATH = "terraform.tfvars"

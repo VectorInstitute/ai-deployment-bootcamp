@@ -55,6 +55,27 @@ resource "aws_iam_role_policy" "lambda_sagemaker_policy" {
   })
 }
 
+resource "aws_iam_role_policy" "lambda_sagemaker_featurestore_policy" {
+  name = "lambda_role_sagemaker_featurestore_policy"
+  role = aws_iam_role.lambda_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = [
+          "sagemaker:GetRecord",
+          "sagemaker:PutRecord",
+          "sagemaker:ListFeatureGroups",
+          "sagemaker:BatchGetRecord"
+        ]
+        Resource = "arn:aws:sagemaker:${var.region}:${local.aws_account_id}:feature-group/*"
+      }
+    ]
+  })
+}
+
 # Attach AmazonRedshiftDataFullAccess policy to the role
 # aws_iam_policy_attachment: For attaching existing managed policies 
 # (either AWS-managed or your own custom policies) to roles, users, or groups.

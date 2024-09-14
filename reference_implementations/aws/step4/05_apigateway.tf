@@ -24,26 +24,6 @@ resource "aws_api_gateway_method" "api_method" {
   }
 }
 
-# resource "aws_iam_role_policy" "api_gateway_role_policy" {
-#     role = aws_iam_role.
-#     policy = jsonencode({"Version": "2012-10-17",
-#     "Statement": [
-#         {
-#             "Effect": "Allow",
-#             "Action": [
-#                 "logs:CreateLogGroup",
-#                 "logs:CreateLogStream",
-#                 "logs:DescribeLogGroups",
-#                 "logs:DescribeLogStreams",
-#                 "logs:PutLogEvents",
-#                 "logs:GetLogEvents",
-#                 "logs:FilterLogEvents"
-#             ],
-#             "Resource": "*"
-#         }
-#     ]})
-  
-# }
 
 resource "aws_api_gateway_integration" "api_integration" {
   rest_api_id             = aws_api_gateway_rest_api.rest_api.id

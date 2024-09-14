@@ -19,5 +19,6 @@ sagemaker_container_repo_url = "763104351884.dkr.ecr.us-east-1.amazonaws.com/pyt
 sagemaker_model_data_s3_url = "s3://sagemaker-us-east-1-025066243062/bert-seq-classification/traced_model.tar.gz"
 rest_api_name = "paraphrase-bert-rest-api"
 rest_api_description = "API for paraphrase-bert-en"
+feature_group_name = "paraphrase-feature-group"
 master_username = "admin"
 master_password = "0jwetQ1xz7$"

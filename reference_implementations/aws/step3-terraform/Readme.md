@@ -80,7 +80,7 @@ The model should also contain the model artifacts like model config and actual m
 
 Prepare model artifacts and upload them to S3 bucket using `upload_model.py`. It uploads models to sagemaker's default S3 bucket.
 
-Here we have prepared two model artifacts: normal model and traced model. Traced model is later used to compile model specifically for AWS Infernetia chips, which are cheaper and faster.
+Here we have prepared two model artifacts: normal model and traced model. Traced model is later used to compile model specifically for AWS Infernetia chips, which are cheaper and faster. Now copy S3 path of your `traced_model.tar.gz` from AWS console to `model_s3_url` variable in `deploy.py`.
 
 **Now compile for `inf1` machines**
 
