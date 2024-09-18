@@ -1,6 +1,6 @@
 fastapi==0.109.1
 fastapi-cli==0.0.4
-google-cloud-aiplatform[prediction]==1.60.0
+google-cloud-aiplatform[prediction]==1.66.0
 pandas==2.0.3
 
 grpcio-status==1.62.2

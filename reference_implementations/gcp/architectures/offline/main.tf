@@ -212,32 +212,34 @@ resource "google_cloudfunctions2_function" "default" {
   ]
 }
 
-resource "google_vertex_ai_featurestore" "default" {
+resource "google_bigquery_dataset" "featurestore_dataset" {
+  dataset_id    = "${local.project_prefix}_${var.env}_featurestore_dataset"
+  location      = "US"
+}
+
+resource "google_bigquery_table" "featurestore_table" {
+  deletion_protection = false
+  dataset_id = google_bigquery_dataset.featurestore_dataset.dataset_id
+  table_id   = "featurestore_table"
+  schema     = file("${var.schemas_folder}/featurestore.json")
+}
+
+resource "google_vertex_ai_feature_online_store" "featurestore" {
   name   = "${local.project_prefix}_${var.env}_featurestore"
   region = var.region
-
-  online_serving_config {
-    fixed_node_count = 1
-  }
-
+  optimized {}
   force_destroy = true
 }
 
-resource "google_vertex_ai_featurestore_entitytype" "data_entity" {
-  name         = "data_entity"
-  featurestore = google_vertex_ai_featurestore.default.id
-
-  monitoring_config {
-    snapshot_analysis {
-      disabled = false
-    }
+resource "google_vertex_ai_feature_online_store_featureview" "featureview" {
+  name                 = "featureview"
+  region               = var.region
+  feature_online_store = google_vertex_ai_feature_online_store.featurestore.name
+  sync_config {
+    cron = "* * * * *" // sync every minute
   }
-
-  depends_on = [google_vertex_ai_featurestore.default]
-}
-
-resource "google_vertex_ai_featurestore_entitytype_feature" "data_feature" {
-  name       = "data_feature"
-  entitytype = google_vertex_ai_featurestore_entitytype.data_entity.id
-  value_type = "STRING"
+  big_query_source {
+    uri               = "bq://${google_bigquery_table.featurestore_table.project}.${google_bigquery_table.featurestore_table.dataset_id}.${google_bigquery_table.featurestore_table.table_id}"
+    entity_id_columns = ["entity_id"]
+  }
 }
