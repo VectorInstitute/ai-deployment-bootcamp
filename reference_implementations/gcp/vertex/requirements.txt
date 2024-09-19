@@ -1,4 +1,4 @@
-google-cloud-aiplatform[prediction]==1.60.0
+google-cloud-aiplatform[prediction]==1.66.0
 google-cloud-iam==2.15.2
 transformers==4.44.0
 pandas==2.0.3

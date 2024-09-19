@@ -1,2 +1,2 @@
-google-cloud-aiplatform[prediction]==1.60.0
+google-cloud-aiplatform[prediction]==1.66.0
 pandas==2.2.2
