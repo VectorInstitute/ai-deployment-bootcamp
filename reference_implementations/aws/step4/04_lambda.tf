@@ -92,6 +92,9 @@ resource "aws_iam_policy_attachment" "secrets_manager_access" {
   policy_arn = "arn:aws:iam::aws:policy/SecretsManagerReadWrite"
 }
 
+resource "aws_ecr_repository" "lambda_ecr_repo" {
+  name = "my-lambda-function-repo"
+}
 
 resource "aws_lambda_function" "my_lambda_function" {
   filename         = "./lambda.zip"
@@ -109,6 +112,8 @@ resource "aws_lambda_function" "my_lambda_function" {
   environment {
     variables = {
       ENDPOINT_NAME = "${var.sagemaker_endpoint_name}"
+      FEATURE_GROUP_NAME = "${var.feature_group_name}"
+      # AWS_DEFAULT_REGION = "${var.region}"
     }
   }
 }

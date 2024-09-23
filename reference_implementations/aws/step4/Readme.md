@@ -174,3 +174,6 @@ Response
 **Remember that `terraform apply` and `terraform destroy` can make changes to our infrastructure, so use them with caution.** 
 
 **Always review the execution plan carefully `terraform plan` before applying changes to ensure that us understand the impact on our infrastructure.**
+
+## Feeding Feature Store
+Before using the endpoint that retrieves data from feature store for inference, you have to ingest some data into it. Simply run `ingest_data_to_fs.py` to do so.

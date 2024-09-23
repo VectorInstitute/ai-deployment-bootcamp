@@ -1,5 +1,4 @@
-aws_lambda_powertools==2.43.1
 boto3==1.34.149
-fastapi==0.114.2
-sagemaker==2.226.1
+botocore==1.34.161
+jsonschema==4.17.3
 uvicorn==0.30.6

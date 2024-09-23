@@ -8,9 +8,7 @@ from aws_lambda_powertools.event_handler import (
     CORSConfig,
     content_types,
 )
-from sagemaker.feature_store.feature_group import FeatureGroup
 from aws_lambda_powertools.utilities.typing import LambdaContext
-from aws_sagemaker.constants import TFVARS
 
 cors_config = CORSConfig()
 app = APIGatewayRestResolver(cors=cors_config)
@@ -20,12 +18,17 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 ENDPOINT_NAME = os.environ.get("ENDPOINT_NAME")
+FEATURE_GROUP_NAME = os.environ.get("FEATURE_GROUP_NAME")
+# REGION = os.environ.get('AWS_DEFAULT_REGION')
 
-runtime_client = boto3.client("runtime.sagemaker")
-fs_client = boto3.client('sagemaker-featurestore-runtime')
-feature_group_name = TFVARS["feature_group_name"]
-feature_group = FeatureGroup(
-    name=feature_group_name)
+session = boto3.session.Session()
+sagemaker_runtime = boto3.client("runtime.sagemaker")
+logger.info(f"boto3 session={session}, sagemaker_runtime={sagemaker_runtime}")
+# fs_runtime = boto3.Session().client(service_name='sagemaker-featurestore-runtime')
+sagemaker_featurestore_client = session.client(service_name='sagemaker-featurestore-runtime',
+                                               region_name = session.region_name)
+
+
 # Run command below from your terminal to see if the enpoint works:
 # aws lambda invoke --function-name bert-paraphrase-tf --payload '{"seq_0": "hello, world!", "seq_1": "goodbye, world!"}' response.json
 
@@ -56,7 +59,7 @@ def get_predictions():
 
     try:
         logger.info("Calling ML Server...")
-        response = runtime_client.invoke_endpoint(
+        response = sagemaker_runtime.invoke_endpoint(
             EndpointName=ENDPOINT_NAME, ContentType="application/json", Body=payload
         )
 
@@ -83,11 +86,14 @@ def get_predictions():
 def predict(id: str):
     logger.info("Received {id=}")
 
-    record = fs_client.get_record(
-        FeatureGroupName=feature_group_name,
-        RecordIdentifierValueAsString=str(id)
+    response = sagemaker_featurestore_client.get_record(
+        FeatureGroupName=FEATURE_GROUP_NAME,
+        RecordIdentifierValueAsString=str(id),
+        FeatureNames=["seq_0", "seq_1"]
     )
-    if not record:
+    # This is how a response looks like:
+    # response={'ResponseMetadata': {'RequestId': '09e5395b-608d-4de4-b83f-c6066025667c', 'HTTPStatusCode': 200, 'HTTPHeaders': {'x-amzn-requestid': '09e5395b-608d-4de4-b83f-c6066025667c', 'content-type': 'application/json', 'content-length': '282', 'date': 'Sat, 21 Sep 2024 19:25:22 GMT'}, 'RetryAttempts': 0}, 'Record': [{'FeatureName': 'id', 'ValueAsString': '3'}, {'FeatureName': 'seq_0', 'ValueAsString': 'The dog barked loudly.'}, {'FeatureName': 'seq_1', 'ValueAsString': 'The canine vocalized noisily.'}]}"
+    if not response:
         logger.info(f"No matching record found for {id=}")
         return {
             "statusCode": 400,
@@ -96,15 +102,21 @@ def predict(id: str):
                 {"message": "Error in finding record"}
             )
         }
+    # We need 'Record' value:
+    # 'Record': [{'FeatureName': 'id', 'ValueAsString': '3'}, {'FeatureName': 'seq_0', 'ValueAsString': 'The dog barked loudly.'}, {'FeatureName': 'seq_1', 'ValueAsString': 'The canine vocalized noisily.'}]
+    record = response['Record'][0] # First item in returned records since we retrieved using ID
+    features = [record['ValueAsString'] for _ in record]
+    logger.info(f"{response=}")
+
     input_data = {
-        "seq_0": record["seq_0"],
-        "seq_1": record["seq_1"],
+        "seq_0": features[0],
+        "seq_1": features[1],
     }
     payload = json.dumps(input_data)
 
     try:
         logger.info("Calling ML Server...")
-        response = runtime_client.invoke_endpoint(
+        response = sagemaker_runtime.invoke_endpoint(
             EndpointName=ENDPOINT_NAME, ContentType="application/json", Body=payload
         )
 
