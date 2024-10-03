@@ -176,4 +176,7 @@ Response
 **Always review the execution plan carefully `terraform plan` before applying changes to ensure that us understand the impact on our infrastructure.**
 
 ## Feeding Feature Store
+In this step of the AWS model deployment, we are going to add a feature store, and feed it with our data/features, and we can send feature/sequence ID in order to get predictions for already stored items.
 Before using the endpoint that retrieves data from feature store for inference, you have to ingest some data into it. Simply run `ingest_data_to_fs.py` to do so.
+
+Then you can send an id to `/prediction/{id}` API endpoint to get the prediction result. 
