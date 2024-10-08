@@ -5,6 +5,7 @@ import traceback
 
 from google.api import httpbody_pb2
 from google.cloud import aiplatform_v1, aiplatform, bigquery
+from vertexai.resources.preview import FeatureView
 
 from models import LlamaTask, Models
 
@@ -32,13 +33,16 @@ def process(event, context):
         print(f"Pulling data with id {data_id} from the feature store")
 
         aiplatform.init(project=PROJECT_ID, location=REGION)
-        entity_type = aiplatform.featurestore.EntityType(
-            featurestore_id=f"{PROJECT_PREFIX}_{ENV}_featurestore",
-            entity_type_name="data_entity",
-        )
 
-        result_df = entity_type.read(entity_ids=[data_id])
-        data = result_df.get("data_feature")[0]
+        features = FeatureView(
+            name="featureview",
+            feature_online_store_id=f"{PROJECT_PREFIX}_{ENV}_featurestore",
+        ).read(key=[data_id]).to_dict()
+
+        data = None
+        for feature in features["features"]:
+            if feature["name"] == "data_feature":
+                data = feature["value"]["string_value"]
 
         if data is None:
             print(f"[ERROR] Data with id {data_id} not found in the feature store.")

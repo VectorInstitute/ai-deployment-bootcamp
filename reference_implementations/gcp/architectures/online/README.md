@@ -64,10 +64,15 @@ To import those data points into the Feature Store, run `import_data_to_fs`:
 python -m import_data_to_fs
 ```
 
-It will output the data points that are currently stored in the feature store
-with their respective IDs.
+You will need to wait for a sync operation to complete in order to query the
+feature store. The first sync can take a long time (up to 20 minutes), to check
+the status of the sync operation, go to the link below, select your feature store,
+then select your view. The sync operations will be shown at the bottom of the page.
+```text
+https://console.cloud.google.com/vertex-ai/feature-store/online-stores
+```
 
-Now the data is ready to be pulled for prediction.
+After the data has been synced, it will be ready to be pulled for prediction.
 
 ## Run a prediction
 

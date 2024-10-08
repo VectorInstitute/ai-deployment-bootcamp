@@ -7,6 +7,7 @@ from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from google.api import httpbody_pb2
 from google.cloud import aiplatform_v1, aiplatform
+from vertexai.resources.preview import FeatureView
 
 from .models import LlamaTask, Models
 
@@ -25,10 +26,6 @@ PROJECT_PREFIX = PROJECT_ID.replace("-", "_")
 async def lifespan(app: FastAPI) -> AsyncGenerator[Any, Any]:
     """Set up function for app startup and shutdown."""
     aiplatform.init(project=PROJECT_ID, location=REGION)
-    app.entity_type = aiplatform.featurestore.EntityType(
-        featurestore_id=f"{PROJECT_PREFIX}_{ENV}_featurestore",
-        entity_type_name="data_entity",
-    )
     yield
 
 
@@ -38,8 +35,15 @@ app = FastAPI(lifespan=lifespan)
 @app.get("/predict/{data_id}")
 async def predict(data_id: str, task: LlamaTask = LlamaTask.GENERATION):
     # fetch data
-    result_df = app.entity_type.read(entity_ids=[data_id])
-    data = result_df.get("data_feature")[0]
+    features = FeatureView(
+        name="featureview",
+        feature_online_store_id=f"{PROJECT_PREFIX}_{ENV}_featurestore",
+    ).read(key=[data_id]).to_dict()
+
+    data = None
+    for feature in features["features"]:
+        if feature["name"] == "data_feature":
+            data = feature["value"]["string_value"]
 
     if data is None:
         return JSONResponse(content={"error": f"Data with id {data_id} not found."}, status_code=400)

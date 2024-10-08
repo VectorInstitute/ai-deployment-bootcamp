@@ -62,7 +62,7 @@ for i in range(len(df)):
     last_gt_id += 1
     
 errors = bq_client.insert_rows_json(data_table, data_list)
-errors_gt =  bq_client.insert_rows_json(ground_truth_table, gt_list)
+errors_gt = bq_client.insert_rows_json(ground_truth_table, gt_list)
 
 if errors is not None and len(errors) > 0:
     print(f"Error saving data to table: {errors}")
