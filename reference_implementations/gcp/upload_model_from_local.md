@@ -29,12 +29,12 @@ tar zcvf model.tar.gz --exclude flax_model.msgpack --exclude pytorch_model.bin -
 ```
 
 Create a bucket on Cloud Storage and upload the compressed model to it (make sure to match
-the project ID and region to the ones you have set up on the [`terraform.tfvars`](architectures/terraform.tfvars)
-file). Make sure to choose a unique bucket name:
+the project and region to the ones you have set up on the [`terraform.tfvars`](architectures/terraform.tfvars)
+file, including replacing `ai-deployment-bootcamp` with your project in the bucket name):
 ```shell
 gcloud storage buckets create gs://ai-deployment-bootcamp-model --location=us-central1 --project=ai-deployment-bootcamp
 gcloud config set storage/parallel_composite_upload_enabled True
-gcloud storage cp model.tar.gz gs://ai-deployment-bootcamp-model/model/
+gcloud storage cp model.tar.gz gs://ai-deployment-bootcamp-model/bart-large-mnli/
 ```
 
 Configure docker on GCP with the commands below (make sure to match the project ID and region to
