@@ -1,0 +1,17 @@
+[
+    {
+        "name": "id",
+        "type": "INTEGER",
+        "mode": "NULLABLE"
+    },
+    {
+        "name": "data_id",
+        "type": "INTEGER",
+        "mode": "NULLABLE"
+    },
+    {
+        "name": "ground_truth",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    }
+]

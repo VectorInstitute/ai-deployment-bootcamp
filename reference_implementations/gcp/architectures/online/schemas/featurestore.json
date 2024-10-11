@@ -1,0 +1,20 @@
+[
+    {
+        "name": "entity_id",
+        "mode": "NULLABLE",
+        "type": "STRING",
+        "description": "Default entity_id"
+    },
+    {
+        "name": "data_feature",
+        "mode": "NULLABLE",
+        "type": "STRING",
+        "description": "Data feature"
+    },
+    {
+        "name": "feature_timestamp",
+        "mode": "NULLABLE",
+        "type": "TIMESTAMP",
+        "description": "Feature timestamp"
+    }
+]
