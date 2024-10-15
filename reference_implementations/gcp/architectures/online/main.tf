@@ -35,10 +35,6 @@ variable "model" {
   type = string
 }
 
-variable "schemas_folder" {
-  type = string
-}
-
 locals {
   # cleaning up project name to make it friendly to some IDs
   project_prefix = replace(var.project, "-", "_")
