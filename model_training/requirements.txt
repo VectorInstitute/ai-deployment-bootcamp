@@ -1,0 +1,10 @@
+scikit-learn
+pandas
+seaborn
+jupyter
+ipykernel
+ydata-profiling
+statsmodels
+imblearn
+mlxtend
+xgboost
