@@ -1,0 +1,12 @@
+[
+    {
+        "name": "id",
+        "type": "INTEGER",
+        "mode": "NULLABLE"
+    },
+    {
+        "name": "data",
+        "type": "JSON",
+        "mode": "NULLABLE"
+    }
+]

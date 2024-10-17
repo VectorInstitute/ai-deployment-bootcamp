@@ -1,4 +1,10 @@
 {
+	"Diabetes_Indicators_sample": {
+		"type": "Classification",
+		"data": "numeric",
+		"gt": "Diabetes_binary",
+		"link": ""
+	},
 	"CNN_DailyMail": {
 		"type": "Summarization",
 		"data": "article",

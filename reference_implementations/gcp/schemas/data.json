@@ -1,12 +1,134 @@
 [
-    {
-        "name": "id",
-        "type": "INTEGER",
-        "mode": "NULLABLE"
-    },
-    {
-        "name": "data",
-        "type": "STRING",
-        "mode": "NULLABLE"
-    }
+  {
+    "name": "id",
+    "mode": "NULLABLE",
+    "type": "INTEGER",
+    "description": "Auto generated unique identifier"
+  },
+  {
+    "name": "HighBP",
+    "mode": "NULLABLE",
+    "type": "INTEGER",
+    "description": "High blood pressure indicator (0 or 1)"
+  },
+  {
+    "name": "HighChol",
+    "mode": "NULLABLE",
+    "type": "INTEGER",
+    "description": "High cholesterol indicator (0 or 1)"
+  },
+  {
+    "name": "CholCheck",
+    "mode": "NULLABLE",
+    "type": "INTEGER",
+    "description": "Cholesterol check indicator (0 or 1)"
+  },
+  {
+    "name": "BMI",
+    "mode": "NULLABLE",
+    "type": "INTEGER",
+    "description": "Body Mass Index"
+  },
+  {
+    "name": "Smoker",
+    "mode": "NULLABLE",
+    "type": "INTEGER",
+    "description": "Smoking status indicator (0 or 1)"
+  },
+  {
+    "name": "Stroke",
+    "mode": "NULLABLE",
+    "type": "INTEGER",
+    "description": "Stroke history indicator (0 or 1)"
+  },
+  {
+    "name": "HeartDiseaseOrAttack",
+    "mode": "NULLABLE",
+    "type": "INTEGER",
+    "description": "Heart disease or heart attack indicator (0 or 1)"
+  },
+  {
+    "name": "PhysActivity",
+    "mode": "NULLABLE",
+    "type": "INTEGER",
+    "description": "Physical activity indicator (0 or 1)"
+  },
+  {
+    "name": "Fruits",
+    "mode": "NULLABLE",
+    "type": "INTEGER",
+    "description": "Fruit consumption indicator (0 or 1)"
+  },
+  {
+    "name": "Veggies",
+    "mode": "NULLABLE",
+    "type": "INTEGER",
+    "description": "Vegetable consumption indicator (0 or 1)"
+  },
+  {
+    "name": "HvyAlcoholConsump",
+    "mode": "NULLABLE",
+    "type": "INTEGER",
+    "description": "Heavy alcohol consumption indicator (0 or 1)"
+  },
+  {
+    "name": "AnyHealthcare",
+    "mode": "NULLABLE",
+    "type": "INTEGER",
+    "description": "Access to healthcare indicator (0 or 1)"
+  },
+  {
+    "name": "NoDocbcCost",
+    "mode": "NULLABLE",
+    "type": "INTEGER",
+    "description": "No doctor visit due to cost indicator (0 or 1)"
+  },
+  {
+    "name": "GenHlth",
+    "mode": "NULLABLE",
+    "type": "INTEGER",
+    "description": "General health rating (1-5)"
+  },
+  {
+    "name": "MentHlth",
+    "mode": "NULLABLE",
+    "type": "INTEGER",
+    "description": "Days of poor mental health (0-30)"
+  },
+  {
+    "name": "PhysHlth",
+    "mode": "NULLABLE",
+    "type": "INTEGER",
+    "description": "Days of poor physical health (0-30)"
+  },
+  {
+    "name": "DiffWalk",
+    "mode": "NULLABLE",
+    "type": "INTEGER",
+    "description": "Difficulty walking indicator (0 or 1)"
+  },
+  {
+    "name": "Sex",
+    "mode": "NULLABLE",
+    "type": "INTEGER",
+    "description": "Sex (0 for female, 1 for male)"
+  },
+  {
+    "name": "Age",
+    "mode": "NULLABLE",
+    "type": "INTEGER",
+    "description": "Age category (1-13)"
+  },
+  {
+    "name": "Education",
+    "mode": "NULLABLE",
+    "type": "INTEGER",
+    "description": "Education level (1-6)"
+  },
+  {
+    "name": "Income",
+    "mode": "NULLABLE",
+    "type": "INTEGER",
+    "description": "Income category (1-8)"
+  }
 ]

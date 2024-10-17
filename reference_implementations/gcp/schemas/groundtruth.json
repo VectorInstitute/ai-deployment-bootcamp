@@ -11,7 +11,7 @@
     },
     {
         "name": "ground_truth",
-        "type": "STRING",
+        "type": "INTEGER",
         "mode": "NULLABLE"
     }
 ]

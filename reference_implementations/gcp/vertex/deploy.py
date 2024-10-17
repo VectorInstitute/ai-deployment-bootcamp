@@ -11,8 +11,8 @@ from utils import save_tfvars
 model_id = sys.argv[1] if len(sys.argv) > 1 else None
 model_version = sys.argv[2] if len(sys.argv) > 2 else "default"
 
-model_name = "bart-large-mnli"
-hf_task = "zero-shot-classification"
+model_name = "diabetes_randomforest_pipeline" ###
+hf_task = "RandomForestClassifier" ###
 
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s: %(message)s")
 

@@ -1,9 +1,11 @@
 google-cloud-aiplatform[prediction]==1.66.0
 google-cloud-iam==2.15.2
+google-c
 transformers==4.44.0
 pandas==2.0.3
 google-cloud-pubsub==2.22.0
 pytfvars==1.0.3
 python-hcl2==4.3.4
-
+db-dtypes
+scikit-learn
 numpy<2

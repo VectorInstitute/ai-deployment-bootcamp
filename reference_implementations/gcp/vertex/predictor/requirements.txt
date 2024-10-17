@@ -1,7 +1,11 @@
 google-cloud-aiplatform[prediction]==1.66.0
-torch==2.2.0
-transformers==4.44.0
-accelerate==0.27.0
-pandas==2.0.3
-
-numpy<2
+scikit-learn
+pandas
+seaborn
+jupyter
+ipykernel
+ydata-profiling
+statsmodels
+imblearn
+mlxtend
+xgboost

@@ -1,0 +1,6 @@
+Diabetes_binary,HighBP,HighChol,CholCheck,BMI,Smoker,Stroke,HeartDiseaseOrAttack,PhysActivity,Fruits,Veggies,HvyAlcoholConsump,AnyHealthcare,NoDocbcCost,GenHlth,MentHlth,PhysHlth,DiffWalk,Sex,Age,Education,Income,HeartDiseaseorAttack
+0,0,0,0,23,0,0,0.0,0,0,1,0,1,0,2,15,0,0,0,2,6,7,
+0,0,0,1,22,1,0,0.0,0,1,0,0,1,0,2,0,0,0,0,2,4,5,
+0,0,1,1,26,0,0,,1,1,1,0,1,0,2,4,2,0,0,2,6,8,0.0
+0,0,1,1,32,1,0,0.0,1,1,1,0,1,1,2,10,0,0,0,2,5,2,
+0,0,0,0,32,0,0,0.0,1,1,1,0,1,1,2,30,0,0,0,2,5,1,

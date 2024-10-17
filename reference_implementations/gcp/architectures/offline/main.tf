@@ -143,6 +143,7 @@ resource "google_storage_bucket" "gcf_source" {
   name                        = "${var.project}-${var.env}-gcf-source"
   location                    = "US"
   uniform_bucket_level_access = true
+  force_destroy = true
 }
 
 data "archive_file" "ml_api" {
