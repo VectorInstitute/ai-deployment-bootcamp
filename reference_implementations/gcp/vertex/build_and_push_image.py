@@ -4,7 +4,6 @@ from google.cloud.aiplatform.prediction import LocalModel
 
 # from predictor.hf_predictor import HuggingFacePredictor
 from predictor.hf_predictor import SklearnPredictor
-from predictor.custom_model import TypeTransformer
 
 from constants import TFVARS, DOCKER_REPO_NAME, DOCKER_IMAGE_NAME
 

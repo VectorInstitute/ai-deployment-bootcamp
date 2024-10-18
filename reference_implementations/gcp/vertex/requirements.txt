@@ -7,5 +7,4 @@ google-cloud-pubsub==2.22.0
 pytfvars==1.0.3
 python-hcl2==4.3.4
 db-dtypes
-scikit-learn
 numpy<2

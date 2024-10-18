@@ -1,11 +1,7 @@
 google-cloud-aiplatform[prediction]==1.66.0
 scikit-learn
 pandas
-seaborn
-jupyter
-ipykernel
-ydata-profiling
-statsmodels
-imblearn
-mlxtend
-xgboost
+
+
+# custom model dependencies
+model_training @ git+https://github.com/doaa-altarawy/ai-deployment-bootcamp.git@main#egg=model_training&subdirectory=model_training
