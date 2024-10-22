@@ -74,6 +74,9 @@ traced_model-ml_inf1.tar.gz/
 │   └── inference.py
 │   └── requirement.txt
 └── paraphrase_bert.pt
+└── config.json
+└── tokenizer.json
+└── tokenizer_config.josn
 ```
 
 The model should also contain the model artifacts like model config and actual model. Here actual model files like `pytorch_model.bin` and `config.json` are absent. You should get it from the link here [Paraphrase Classification Model with BERT](https://huggingface.co/Prompsit/paraphrase-bert-en/tree/main)
