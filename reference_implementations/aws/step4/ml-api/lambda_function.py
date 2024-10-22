@@ -5,8 +5,7 @@ import os
 import boto3
 from aws_lambda_powertools.event_handler import (
     APIGatewayRestResolver,
-    CORSConfig,
-    content_types,
+    CORSConfig
 )
 from aws_lambda_powertools.utilities.typing import LambdaContext
 
@@ -82,9 +81,9 @@ def get_predictions():
             ),  
         }
     
-@app.get("/predict/{id}")
+@app.get("/predict/<id>")
 def predict(id: str):
-    logger.info("Received {id=}")
+    logger.info(f"Received {id=}")
 
     response = sagemaker_featurestore_client.get_record(
         FeatureGroupName=FEATURE_GROUP_NAME,
