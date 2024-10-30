@@ -22,3 +22,5 @@ rest_api_description = "API for paraphrase-bert-en"
 feature_group_name = "paraphrase-feature-group"
 master_username = "admin"
 master_password = "0jwetQ1xz7$"
+db_name = "predictions"
+db_port = 5439

@@ -79,11 +79,11 @@ resource "aws_iam_role_policy" "lambda_sagemaker_featurestore_policy" {
 # Attach AmazonRedshiftDataFullAccess policy to the role
 # aws_iam_policy_attachment: For attaching existing managed policies 
 # (either AWS-managed or your own custom policies) to roles, users, or groups.
-# resource "aws_iam_policy_attachment" "redshift_data_access" {
-#   name       = "lambda_role_redshift_data_access_attachment"
-#   roles      = [aws_iam_role.lambda_role.id]
-#   policy_arn = "arn:aws:iam::aws:policy/AmazonRedshiftDataFullAccess"
-# }
+resource "aws_iam_policy_attachment" "redshift_data_access" {
+  name       = "lambda_role_redshift_data_access_attachment"
+  roles      = [aws_iam_role.lambda_role.id]
+  policy_arn = "arn:aws:iam::aws:policy/AmazonRedshiftFullAccess"
+}
 
 # resource "aws_iam_policy_attachment" "sqs_access" {
 #   name       = "lambda_role_redshift_data_access_attachment"
@@ -111,6 +111,7 @@ resource "aws_iam_role_policy" "lambda_sqs_policy" {
   })
 }
 
+
 resource "aws_lambda_function" "my_lambda_function" {
   filename         = "./lambda.zip"
   function_name    = "bert-paraphrase-tf"
@@ -127,7 +128,10 @@ resource "aws_lambda_function" "my_lambda_function" {
     variables = {
       ENDPOINT_NAME = "${var.sagemaker_endpoint_name}"
       FEATURE_GROUP_NAME = "${var.feature_group_name}"
-      # AWS_DEFAULT_REGION = "${var.region}"
+      REDSHIFT_URL = "${aws_redshift_cluster.my_redshift_cluster.endpoint}:${aws_redshift_cluster.my_redshift_cluster.port}"
+      REDSHIFT_USER = "${aws_redshift_cluster.my_redshift_cluster.master_username}"
+      CLUSTER_ID = "${aws_redshift_cluster.my_redshift_cluster.id}"
+      DB_NAME = "${var.db_name}"
     }
   }
 }

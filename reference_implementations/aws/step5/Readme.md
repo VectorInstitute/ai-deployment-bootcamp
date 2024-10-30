@@ -180,3 +180,11 @@ Response
 
 ## Feeding Feature Store
 Before using the endpoint that retrieves data from feature store for inference, you have to ingest some data into it. Simply run `ingest_data_to_fs.py` to do so.
+
+## Offline inference
+For offline inference, we're going to add two new components:
+
+1. An AWS SQS that users are able to send a batch of requests for prediction to,
+2. A Redshift Cluster which hosts a database table for storing predictions for later retrieval by users.
+
+By editing and running `python -m aws_sagemaker.publish_to_queue` you can place a request for an input in feature store in the queue, and the Lambda Function picks up the requests from the queue and sends it to the ML enpoint. After receiving the response, it writes the results into a Redshift database named `prediction_result`. 

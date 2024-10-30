@@ -16,6 +16,25 @@ resource "aws_route_table" "public_route_table" {
   }
 }
 
+resource "aws_iam_role" "redshift_role" {
+  name = "redshift-role"
+  
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Action    = "sts:AssumeRole",
+      Effect    = "Allow",
+      Principal = {
+        Service = "redshift.amazonaws.com"
+      },
+    }],
+  })
+}
+
+resource "aws_redshift_cluster_iam_roles" "redshift_cluster_role" {
+  cluster_identifier = aws_redshift_cluster.my_redshift_cluster.cluster_identifier
+  iam_role_arns      = [aws_iam_role.redshift_role.arn]
+}
 
 resource "aws_subnet" "public_subnet" {
   vpc_id            = aws_vpc.my_vpc.id
@@ -41,18 +60,25 @@ resource "aws_redshift_cluster" "my_redshift_cluster" {
   master_username    = "${var.master_username}"
   master_password    = "${var.master_password}"
   cluster_type       = "single-node"
+
   publicly_accessible = true
   skip_final_snapshot      = true
   vpc_security_group_ids = [aws_security_group.redshift_sg.id]
   cluster_subnet_group_name = aws_redshift_subnet_group.redshift_subnet_group.name
+  enhanced_vpc_routing = true
+}
+
+output "redshift_cluster_url" {
+  value = "${aws_redshift_cluster.my_redshift_cluster.endpoint}"
+  description = "Redshift cluster URL"
 }
 
 resource "aws_security_group" "redshift_sg" {
   vpc_id = aws_vpc.my_vpc.id
 
   ingress {
-    from_port   = 5439
-    to_port     = 5439
+    from_port   = "${var.db_port}"
+    to_port     = "${var.db_port}"
     protocol    = "tcp"
     # cidr_blocks = ["10.0.0.0/16"]  # Adjust for your use case - this is only from your vpc
     cidr_blocks = ["0.0.0.0/0"]  # Allow access from anywhere

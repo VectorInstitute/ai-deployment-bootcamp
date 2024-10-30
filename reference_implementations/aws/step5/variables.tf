@@ -104,3 +104,14 @@ variable "master_password" {
   description = "Redshift password"
   sensitive = true
 }
+
+variable "db_name" {
+  type = string
+  description = "Redshift database that stores prediction results"
+}
+
+variable "db_port" {
+  type = number
+  description = "Redshift database port"
+  default = 5439
+}
