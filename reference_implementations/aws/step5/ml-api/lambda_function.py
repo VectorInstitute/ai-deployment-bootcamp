@@ -154,7 +154,11 @@ def insert_prediction(input_id, prediction: str):
     """
     
     get_last_id_query = "SELECT MAX(id) FROM prediction_results;"
-    insert_query = "INSERT INTO prediction_results (id, input_id, output) VALUES (%s, %s, %s);"
+    insert_query = """
+    INSERT INTO prediction_results (id, input_id, output)
+    VALUES (:id, :input_id, :output);
+    """
+    # Parameters for the query
 
     # Execute the SQL query
     try:
@@ -190,20 +194,26 @@ def insert_prediction(input_id, prediction: str):
         # Get the actual result
         if status_response['Status'] == 'FINISHED':
             result_response = client.get_statement_result(Id=statement_id)
-            last_id = int(result_response['Records'][0][0]['longValue'])
+            last_id = int(result_response['Records'][0][0].get('longValue', 0))
             new_id = last_id + 1
             logger.info(f"New ID: {new_id}")
         else:
             logger.error(f"Statement execution failed: {status_response['Error']}")
-                
+        
+        parameters = [
+            {'name': 'id', 'value': str(new_id)},
+            {'name': 'input_id', 'value':  str(input_id)},
+            {'name': 'output', 'value': prediction}
+        ]
+
         # Execute INSERT query with the new id
-        insert_query_with_id = insert_query % (new_id, input_id, prediction)
-        logger.info(f"Insert query: {insert_query_with_id}")
+        logger.info(f"Insert query: {insert_query}")
         insert_response = client.execute_statement(
             ClusterIdentifier=cluster_id,
             Database=database_name,
             DbUser=db_user,
-            Sql=insert_query_with_id,
+            Sql=insert_query,
+            Parameters=parameters
         )
         poll_query_status(insert_response['Id'], client)
         logger.info(f"Insert query executed: {insert_response}")
@@ -231,7 +241,6 @@ def lambda_handler(event: dict, context: LambdaContext) -> dict:
         
         # If the message is in JSON format, parse it
         try:
-            # TODO: Add your message processing logic here
             message = json.loads(body)
             logger.info(f"Parsed message: {message}")
 
