@@ -151,30 +151,6 @@ After successful deployment you will see something like below (if not, you can g
 
 ```bash
 Apply complete! Resources: 16 added, 0 changed, 0 destroyed.
-
-Outputs:
-
-api_gateway_url = "https://k3565nbkl6.execute-api.us-east-1.amazonaws.com/dev"
-```
-
-Append `/predict` to the api url for getting the sentiment for financial text. Request method will be `POST`
-
-```bash
-
-https://k3565nbkl6.execute-api.us-east-1.amazonaws.com/dev/predict
-
-{"seq_0": "The fluffy white cat curled up on the cozy armchair, napping peacefully in the warm sunlight streaming through the window.", "seq_1": "Snuggling comfortably in the sunlit armchair, the soft, white cat dozed off, enjoying a tranquil nap."}
-
-Response
-
-{
-    "data": [
-        {
-            "label": "POSITIVE",
-            "score": 1
-        }
-    ]
-}
 ```
 
 ## Caution!!!
