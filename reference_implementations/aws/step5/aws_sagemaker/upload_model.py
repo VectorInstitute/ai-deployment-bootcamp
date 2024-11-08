@@ -17,7 +17,7 @@ tokenizer = AutoTokenizer.from_pretrained(model_name)
 # The second image is a traced Pytorch image of the model so we can compile it before deploying it to the inf1 instance.
 
 # Create directory for model artifacts
-Path("paraphrase-bert/normal_model/").mkdir(exist_ok=True)
+# Path("paraphrase-bert/normal_model/").mkdir(exist_ok=True)
 Path("paraphrase-bert/traced_model/").mkdir(exist_ok=True)
 
 # Prepare sample input for jit model tracing
@@ -34,29 +34,35 @@ example = (tokenized_sequence_pair["input_ids"], tokenized_sequence_pair["attent
 traced_model = torch.jit.trace(model.eval(), example)
 
 # Save the traced model
-traced_model.save("paraphrase-bert/traced_model/paraphrase_bert.pt")
+traced_model.save("paraphrase-bert/paraphrase_bert.pt")
 
-# Save the normal model
+# Save the normal model - uncommnet if you want to save the normal model
 # model.save_pretrained('paraphrase-bert/normal_model/')
 
 os.chdir("paraphrase-bert")
 
-# Zipping normal model
-command = "tar -czvf normal_model.tar.gz -C normal_model . && mv normal_model.tar.gz normal_model/"
-subprocess.run(command, shell=True, check=True)
+if not os.path.exists('traced_model'):
+    os.makedirs('traced_model')
+
+# Zipping normal model - uncommnet if you want to zip the normal model
+# command = "tar -czvf normal_model.tar.gz -C normal_model . && mv normal_model.tar.gz normal_model/"
+# subprocess.run(command, shell=True, check=True)
 
 # Zipping traced model
-command = "tar -czvf traced_model.tar.gz -C traced_model . && mv traced_model.tar.gz traced_model/"
+command = "tar -czvf traced_model.tar.gz * && mv traced_model.tar.gz traced_model/"
 subprocess.run(command, shell=True, check=True)
 
 # We upload the model's tar.gz file to Amazon S3, where the compilation job will download it from
-normal_model_url = sagemaker_session.upload_data(
-    path="normal_model/normal_model.tar.gz",
-    key_prefix="bert-seq-classification",
-)
 
+# Upload the normal model to S3 - uncommnet if you want to upload the normal model
+# normal_model_url = sagemaker_session.upload_data(
+#     path="normal_model/normal_model.tar.gz",
+#     key_prefix="bert-seq-classification",
+# )
+
+# Upload the traced model to S3 for INF1 deployment
 traced_model_url = sagemaker_session.upload_data(
     path="traced_model/traced_model.tar.gz",
     key_prefix="bert-seq-classification",
 )
-
+print(f"Traced model uploaded to: {traced_model_url}")

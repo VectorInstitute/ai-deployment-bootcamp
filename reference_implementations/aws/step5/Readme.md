@@ -87,7 +87,11 @@ Here we have prepared two model artifacts: normal model and traced model. Traced
 
 **Now compile for `inf1` machines**
 
-After successful running of `deploy.py`, the S3 URL for compiled model is printed. Copy the s3 model artifacts link and place it into `sagemaker_model_data_s3_url` in `terraform.tfvars` file. There's no need to repeat this step in the future unless you delete your tar.gz model from S3 bucket or change your model.
+Update any variable required (under `TODO`s) in `deploy.py` and run it.
+
+After successful running of `deploy.py`, the S3 URL for compiled model is printed. 
+
+Now, Copy the s3 model artifacts (`.tar.gz` file) link and place it into `sagemaker_model_data_s3_url` in `terraform.tfvars` file. There's no need to repeat this compilation and upload step in the future unless you delete your tar.gz model from S3 bucket or change your model.
 
 
 **Compress Lambda function for deployment**

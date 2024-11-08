@@ -65,14 +65,14 @@ compiled_model = hf_model.compile(
 
 print("Compilation job name: {} \nOutput model path in S3: {}".format(compilation_job_name, output_model_path))
 
-# # TODO: Pro-tip - look into other parameters of deploy to know more about different endpoint types
-# compiled_inf1_predictor = compiled_model.deploy(
-#     instance_type="ml.inf1.xlarge",
-#     initial_instance_count=1,
-#     endpoint_name=f"paraphrase-bert-en-{hardware}-{date_string}",
-#     serializer=JSONSerializer(),
-#     deserializer=JSONDeserializer(),
-#     wait=False
-# )
+# TODO: Pro-tip - look into other parameters of deploy to know more about different endpoint types
+compiled_inf1_predictor = compiled_model.deploy(
+    instance_type="ml.inf1.xlarge",
+    initial_instance_count=1,
+    endpoint_name=f"paraphrase-bert-en-{hardware}-{date_string}",
+    serializer=JSONSerializer(),
+    deserializer=JSONDeserializer(),
+    wait=False
+)
 
-# print(f"Model deployed: {compiled_inf1_predictor.endpoint_name}")
+print(f"Model deployed: {compiled_inf1_predictor.endpoint_name}")

@@ -29,17 +29,21 @@ def model_fn(model_dir):
         logger.info(file)
 
     # tokenizer = AutoTokenizer.from_pretrained(model_dir)
-    tokenizer = AutoTokenizer.from_pretrained('Prompsit/paraphrase-bert-en')   
+    tokenizer = AutoTokenizer.from_pretrained(model_name)   
 
     logger.info("Tokenizer loaded. Loading compiled model...") 
-    compiled_model = os.path.exists(f'{model_dir}/{pytorch_model_file}')
-    if compiled_model:
-        os.environ["NEURONCORE_GROUP_SIZES"] = "1"
-        model = torch.jit.load(f'{model_dir}/{pytorch_model_file}')
-    else: 
-        model = AutoModelForSequenceClassification.from_pretrained(model_dir).to(device)
-    
-    return (model, tokenizer)
+    try:
+        compiled_model = os.path.exists(f'{model_dir}/{pytorch_model_file}')
+        if compiled_model:
+            os.environ["NEURONCORE_GROUP_SIZES"] = "1"
+            model = torch.jit.load(f'{model_dir}/{pytorch_model_file}')
+        else: 
+            model = AutoModelForSequenceClassification.from_pretrained(model_dir).to(device)
+        logger.info("Model loaded successfully.")
+        return model, tokenizer
+    except Exception as e:
+        logger.error(f"Error loading model: {str(e)}")
+        raise
 
 
 def input_fn(serialized_input_data, content_type=JSON_CONTENT_TYPE):
@@ -72,16 +76,20 @@ def predict_fn(input_data, models):
     # Convert example inputs to a format that is compatible with TorchScript tracing
     example_inputs = tokenized_sequence_pair['input_ids'], tokenized_sequence_pair['attention_mask']
     
-    with torch.no_grad():
-        paraphrase_classification_logits = model_bert(*example_inputs)
+    try:
+        with torch.no_grad():
+            paraphrase_classification_result = model_bert(*example_inputs)
+            logger.info(f"Prediction: {paraphrase_classification_result}")
+        soft = torch.nn.Softmax(dim=1)
+        result = soft(paraphrase_classification_result[0])
+        classes = ['Not a paraphrase', 'It\'s a paraphrase']
+        out_str = classes[result.argmax(dim=-1).item()]
+        return out_str
+    except Exception as e:
+        logger.error(f"Error in predict_fn: {str(e)}")
+        raise
     
-    classes = ['paraphrase','not paraphrase']
-    # paraphrase_prediction = paraphrase_classification_logits[0][0].argmax().item()
-    
-    soft = torch.nn.Softmax(dim=1)
-    out_str = 'Result logits: {}'.format(soft(paraphrase_classification_logits)) 
-    
-    return out_str
+    return str(result)
 
 def output_fn(prediction_output, accept=JSON_CONTENT_TYPE):
     """In charge of checking content types of output to the endpoint."""
