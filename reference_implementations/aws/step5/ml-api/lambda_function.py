@@ -23,60 +23,36 @@ FEATURE_GROUP_NAME = os.environ.get("FEATURE_GROUP_NAME")
 
 session = boto3.session.Session()
 sagemaker_runtime = boto3.client("runtime.sagemaker")
+
+# Initialize CloudWatch client for monitoring
+cloudwatch = boto3.client('cloudwatch')
+
 logger.info(f"boto3 session={session}, sagemaker_runtime={sagemaker_runtime}")
 fs_runtime = boto3.Session().client(service_name='sagemaker-featurestore-runtime')
 sagemaker_featurestore_client = session.client(service_name='sagemaker-featurestore-runtime',
                                                region_name = session.region_name)
 
+client = boto3.client('redshift-data')
+    
+# Define your Redshift cluster information and SQL query
+cluster_id = os.getenv("CLUSTER_ID")  # Redshift cluster ID
+database_name = os.getenv("DB_NAME")  # Redshift database name
+db_user = os.getenv("REDSHIFT_USER")  # Database user with access
 
-# @app.post("/predict")
-# def get_predictions():
-#     logger.info("received data input in predict rest endpoint")
 
-#     data = app.current_event.json_body
-#     seq_0 = data.get("seq_0")
-#     seq_1 = data.get("seq_1")
+def publish_custom_metrics(metric_name, value, unit="None"):
+    """Publishes a custom metric to Amazon CloudWatch."""
+    cloudwatch.put_metric_data(
+        Namespace='SageMaker/CustomModelMetrics',
+        MetricData=[
+            {
+                'MetricName': metric_name,
+                'Value': value,
+                'Unit': unit
+            }
+        ]
+    )
 
-#     input_data = {
-#         "seq_0": seq_0,
-#         "seq_1": seq_1,
-#     }
-
-#     # Convert input data to JSON string
-#     payload = json.dumps(input_data)
-#     logger.info(f"Payload: {payload}")
-#     if not data or not seq_0 or not seq_1:
-
-#         return {
-#             "statusCode": 400,
-#             "headers": {"Content-Type": "application/json"},
-#             "body": payload
-#         }
-
-#     try:
-#         logger.info("Calling ML Server...")
-#         response = sagemaker_runtime.invoke_endpoint(
-#             EndpointName=ENDPOINT_NAME, ContentType="application/json", Body=payload
-#         )
-
-#         result = json.loads(response["Body"].read().decode())
-#         logger.info(f"Result from ML server: {result}")
-
-#         return {
-#             "statusCode": 200,
-#             "headers": {"Content-Type": "application/json"},
-#             "body": json.dumps(result),
-#         }
-#     except Exception as e:
-#         logger.info("Bad request...")
-#         logger.error(f"Unhandled exception: {e}", exc_info=True)
-#         return {
-#             "statusCode": 400,
-#             "headers": {"Content-Type": "application/json"},
-#             "body": json.dumps(
-#                 {"message": f"Unhandled exception in predict: {e}"}
-#             ),  
-#         }
     
 def predict(id: str):
     logger.info("Received {id=}")
@@ -102,12 +78,21 @@ def predict(id: str):
         "seq_1": features[1],
     }
     payload = json.dumps(input_data)
+    
+    # Measure start time for latency
+    start_time = time.time()
 
     try:
         logger.info("Calling ML Server...")
         response = sagemaker_runtime.invoke_endpoint(
             EndpointName=ENDPOINT_NAME, ContentType="application/json", Body=payload
         )
+        # Measure latency and log it
+        latency = time.time() - start_time
+
+        publish_custom_metrics("ModelLatency", latency, "Seconds")
+        publish_custom_metrics("InputLengthSeq0", len(input_data['seq_0']), "Count")
+        publish_custom_metrics("InputLengthSeq1", len(input_data['seq_1']), "Count")
 
         result = json.loads(response["Body"].read().decode())
         logger.info(f"Result from ML server: {result}")
@@ -119,6 +104,7 @@ def predict(id: str):
         logger.error(f"Unhandled exception: {e}", exc_info=True)
 
 def poll_query_status(query_id: str, client):
+    status = None
     # Poll the query status
     while True:
         status_response = client.describe_statement(Id=query_id)
@@ -136,14 +122,63 @@ def poll_query_status(query_id: str, client):
                 'body': json.dumps(f"Query failed: {status_response['Error']}")
             }
         time.sleep(2)  # Wait for 2 seconds before checking the status again
-        
-def insert_prediction(input_id, prediction: str):
-    client = boto3.client('redshift-data')
+    return status
+
+
+def create_database():
+    # Check if the database exists
+    check_db_query = f"""
+    SELECT 1
+    FROM pg_database
+    WHERE datname = '{database_name}';
+    """
+
+    try:
+        response = client.execute_statement(
+            ClusterIdentifier=cluster_id,
+            Database="dev",  # Use a default database (e.g., 'dev') to run this query
+            DbUser=db_user,
+            Sql=check_db_query
+        )
+        # Get the query execution ID
+        query_id = response['Id']
+
+        status = poll_query_status(query_id, client)
+        if not status or status == "FAILED":
+            logger.info(f"Checking database {database_name} query failed.")
+        else:
+            result_response = client.get_statement_result(Id=query_id)
+            logger.info(f"Result response from querying database {database_name}: \n{result_response}")
+        # If the response is empty, database doesn't exist
+            if not result_response['Records']: # TODO: key error 'Records'
+                # Create the database if it does not exist
+                create_db_query = f"CREATE DATABASE {database_name};"
+                client.execute_statement(
+                    ClusterIdentifier=cluster_id,
+                    Database="dev",  # Again, using a default database
+                    DbUser=db_user,
+                    Sql=create_db_query
+                )
+                logger.info(f"Database '{database_name}' created successfully.")
+            else:
+                logger.info(f"Database '{database_name}' already exists.")
     
-    # Define your Redshift cluster information and SQL query
-    cluster_id = os.getenv("CLUSTER_ID")  # Redshift cluster ID
-    database_name = os.getenv("DB_NAME")  # Redshift database name
-    db_user = os.getenv("REDSHIFT_USER")  # Database user with access
+    except Exception as e:
+        logger.error(f"Error checking/creating database: {str(e)}")
+        return {
+            'statusCode': 500,
+            'body': f"Error: {str(e)}"
+        }
+
+    return {
+        'statusCode': 200,
+        'body': 'Database and table check/creation completed successfully.'
+    }
+
+
+def insert_prediction(input_id, prediction: str):
+    
+    create_database()
 
     create_table_query = """
     CREATE TABLE IF NOT EXISTS prediction_results (

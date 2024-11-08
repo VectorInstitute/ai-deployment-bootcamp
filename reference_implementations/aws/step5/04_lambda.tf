@@ -111,6 +111,20 @@ resource "aws_iam_role_policy" "lambda_sqs_policy" {
   })
 }
 
+resource "aws_iam_role_policy" "cloudwatch_put_metric_data_policy" {
+  role = aws_iam_role.lambda_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = "cloudwatch:PutMetricData"
+        Resource = "*"
+      }
+    ]
+  })
+}
 
 resource "aws_lambda_function" "my_lambda_function" {
   filename         = "./lambda.zip"
