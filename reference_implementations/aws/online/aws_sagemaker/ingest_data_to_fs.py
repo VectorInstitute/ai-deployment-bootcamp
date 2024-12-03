@@ -26,20 +26,23 @@ feature_group_name = TFVARS["feature_group_name"]
 
 
 # We use the boto client to get the FeatureGroup
-sagemaker_client = sagemaker_session.boto_session.client('sagemaker', region_name=region) 
+sagemaker_client = sagemaker_session.boto_session.client(
+    "sagemaker", region_name=region
+)
 response = sagemaker_client.describe_feature_group(FeatureGroupName=feature_group_name)
 
 # Ingest data into a feature group
-feature_group = FeatureGroup(name=response['FeatureGroupName'], sagemaker_session=sagemaker_session)
+feature_group = FeatureGroup(
+    name=response["FeatureGroupName"], sagemaker_session=sagemaker_session
+)
 feature_group.ingest(data_frame=data, max_workers=3, wait=True)
 
 # Test for reading sample record
 test_id = 4
 sample_record = sagemaker_session.boto_session.client(
-    'sagemaker-featurestore-runtime', region_name=region
-    ).get_record(
-        FeatureGroupName=feature_group_name,
-        RecordIdentifierValueAsString=str(test_id)
-    )
+    "sagemaker-featurestore-runtime", region_name=region
+).get_record(
+    FeatureGroupName=feature_group_name, RecordIdentifierValueAsString=str(test_id)
+)
 
 print(f"{sample_record=}")

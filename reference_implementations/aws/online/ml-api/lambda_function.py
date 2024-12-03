@@ -3,10 +3,7 @@ import logging
 import os
 
 import boto3
-from aws_lambda_powertools.event_handler import (
-    APIGatewayRestResolver,
-    CORSConfig
-)
+from aws_lambda_powertools.event_handler import APIGatewayRestResolver, CORSConfig
 from aws_lambda_powertools.utilities.typing import LambdaContext
 
 cors_config = CORSConfig()
@@ -23,9 +20,10 @@ FEATURE_GROUP_NAME = os.environ.get("FEATURE_GROUP_NAME")
 session = boto3.session.Session()
 sagemaker_runtime = boto3.client("runtime.sagemaker")
 logger.info(f"boto3 session={session}, sagemaker_runtime={sagemaker_runtime}")
-# fs_runtime = boto3.Session().client(service_name='sagemaker-featurestore-runtime')
-sagemaker_featurestore_client = session.client(service_name='sagemaker-featurestore-runtime',
-                                               region_name = session.region_name)
+
+sagemaker_featurestore_client = session.client(
+    service_name="sagemaker-featurestore-runtime", region_name=session.region_name
+)
 
 
 # Run command below from your terminal to see if the enpoint works:
@@ -49,11 +47,10 @@ def get_predictions():
     payload = json.dumps(input_data)
     logger.info(f"Payload: {payload}")
     if not data or not seq_0 or not seq_1:
-
         return {
             "statusCode": 400,
             "headers": {"Content-Type": "application/json"},
-            "body": payload
+            "body": payload,
         }
 
     try:
@@ -76,11 +73,10 @@ def get_predictions():
         return {
             "statusCode": 400,
             "headers": {"Content-Type": "application/json"},
-            "body": json.dumps(
-                {"message": f"Unhandled exception in predict: {e}"}
-            ),  
+            "body": json.dumps({"message": f"Unhandled exception in predict: {e}"}),
         }
-    
+
+
 @app.get("/predict/<id>")
 def predict(id: str):
     logger.info(f"Received {id=}")
@@ -88,7 +84,7 @@ def predict(id: str):
     response = sagemaker_featurestore_client.get_record(
         FeatureGroupName=FEATURE_GROUP_NAME,
         RecordIdentifierValueAsString=str(id),
-        FeatureNames=["seq_0", "seq_1"]
+        FeatureNames=["seq_0", "seq_1"],
     )
     # This is how a response looks like:
     # response={'ResponseMetadata': {'RequestId': '09e5395b-608d-4de4-b83f-c6066025667c', 'HTTPStatusCode': 200, 'HTTPHeaders': {'x-amzn-requestid': '09e5395b-608d-4de4-b83f-c6066025667c', 'content-type': 'application/json', 'content-length': '282', 'date': 'Sat, 21 Sep 2024 19:25:22 GMT'}, 'RetryAttempts': 0}, 'Record': [{'FeatureName': 'id', 'ValueAsString': '3'}, {'FeatureName': 'seq_0', 'ValueAsString': 'The dog barked loudly.'}, {'FeatureName': 'seq_1', 'ValueAsString': 'The canine vocalized noisily.'}]}"
@@ -97,14 +93,14 @@ def predict(id: str):
         return {
             "statusCode": 400,
             "headers": {"Content-Type": "application/json"},
-            "body": json.dumps(
-                {"message": "Error in finding record"}
-            )
+            "body": json.dumps({"message": "Error in finding record"}),
         }
     # We need 'Record' value:
     # 'Record': [{'FeatureName': 'id', 'ValueAsString': '3'}, {'FeatureName': 'seq_0', 'ValueAsString': 'The dog barked loudly.'}, {'FeatureName': 'seq_1', 'ValueAsString': 'The canine vocalized noisily.'}]
-    record = response['Record'][0] # First item in returned records since we retrieved using ID
-    features = [record['ValueAsString'] for _ in record]
+    record = response["Record"][
+        0
+    ]  # First item in returned records since we retrieved using ID
+    features = [record["ValueAsString"] for _ in record]
     logger.info(f"{response=}")
 
     input_data = {
@@ -133,9 +129,7 @@ def predict(id: str):
         return {
             "statusCode": 400,
             "headers": {"Content-Type": "application/json"},
-            "body": json.dumps(
-                {"message": f"Unhandled exception in predict: {e}"}
-            ),  
+            "body": json.dumps({"message": f"Unhandled exception in predict: {e}"}),
         }
 
 
