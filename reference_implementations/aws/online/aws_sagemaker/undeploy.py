@@ -9,7 +9,6 @@ def undeploy_all_models(endpoint_name):
 
     # Undeploy each model
     for variant in production_variants:
-        model_name = variant['ModelName']
         client.update_endpoint(
             EndpointName=endpoint_name,
             ProductionVariants=[

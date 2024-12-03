@@ -4,9 +4,6 @@ from datetime import datetime, timedelta
 import boto3
 import sagemaker
 from botocore.config import Config
-from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
-from sagemaker.predictor import Predictor
 
 # Replace with your SageMaker endpoint name
 endpoint_name = 'paraphrase-bert-en-endpoint'

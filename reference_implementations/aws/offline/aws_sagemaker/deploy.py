@@ -30,7 +30,7 @@ except ValueError:
 print(f"Role: \n{role=}")
 
 # TODO: Replace with the path to your traced model artifact for compilation
-model_s3_url = f"s3://sagemaker-us-east-1-025066243062/bert-seq-classification/traced_model.tar.gz"
+model_s3_url = "s3://sagemaker-us-east-1-025066243062/bert-seq-classification/traced_model.tar.gz"
 
 
 # versions are found in model's HF page

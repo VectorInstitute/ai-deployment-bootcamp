@@ -75,7 +75,6 @@ def predict_fn(input_data, models):
     with torch.no_grad():
         paraphrase_classification_logits = model_bert(*example_inputs)
     
-    classes = ['paraphrase','not paraphrase']
     # paraphrase_prediction = paraphrase_classification_logits[0][0].argmax().item()
     
     soft = torch.nn.Softmax(dim=1)

@@ -6,7 +6,6 @@ import boto3
 from aws_lambda_powertools.event_handler import (
     APIGatewayRestResolver,
     CORSConfig,
-    content_types,
 )
 from aws_lambda_powertools.utilities.typing import LambdaContext
 

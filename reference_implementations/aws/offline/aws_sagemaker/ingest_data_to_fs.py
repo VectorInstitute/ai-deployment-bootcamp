@@ -1,6 +1,4 @@
 import logging
-import time
-from time import gmtime, strftime
 
 import pandas as pd
 
