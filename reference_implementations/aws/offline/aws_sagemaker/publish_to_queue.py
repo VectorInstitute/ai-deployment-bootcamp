@@ -21,8 +21,8 @@ parser = argparse.ArgumentParser(description="Publish message to SQS with a give
 parser.add_argument("id", type=str, help="The ID to include in the SQS message.")
 args = parser.parse_args()
 
-# SQS queue URL
-queue_url = 'https://sqs.us-east-1.amazonaws.com/025066243062/my_queue'
+# SQS queue URL - TODO: Replace with your queue URL
+queue_url = 'https://sqs.us-east-1.amazonaws.com/025066243062/inference_queue'
 
 # Prepare input data
 input_data = {

@@ -55,7 +55,7 @@ resource "aws_api_gateway_integration" "api_integration" {
   resource_id             = aws_api_gateway_resource.api_resource.id
   http_method             = aws_api_gateway_method.api_method.http_method
   type                    = "AWS_PROXY"
-  uri                     = aws_lambda_function.my_lambda_function.invoke_arn
+  uri                     = aws_lambda_function.inference_lambda_function.invoke_arn
   integration_http_method = "ANY"
 
   cache_key_parameters = ["method.request.path.proxy"]
@@ -71,7 +71,7 @@ resource "aws_api_gateway_integration" "predict_id_integration" {
   resource_id             = aws_api_gateway_resource.predict_id_resource.id
   http_method             = aws_api_gateway_method.predict_id_get.http_method
   type                    = "AWS_PROXY"
-  uri                     = aws_lambda_function.my_lambda_function.invoke_arn
+  uri                     = aws_lambda_function.inference_lambda_function.invoke_arn
   integration_http_method = "POST"
 
   request_parameters = {
@@ -84,7 +84,7 @@ resource "aws_api_gateway_integration" "predict_id_integration" {
 resource "aws_lambda_permission" "apigw_lambda" {
   statement_id  = "AllowExecutionFromAPIGateway"
   action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.my_lambda_function.function_name
+  function_name = aws_lambda_function.inference_lambda_function.function_name
   principal     = "apigateway.amazonaws.com"
   source_arn = "arn:aws:execute-api:${var.region}:${local.aws_account_id}:${aws_api_gateway_rest_api.rest_api.id}/*/${aws_api_gateway_method.api_method.http_method}${aws_api_gateway_resource.api_resource.path}"
 }
@@ -92,7 +92,7 @@ resource "aws_lambda_permission" "apigw_lambda" {
 resource "aws_lambda_permission" "apigw_lambda_predict_id" {
   statement_id  = "AllowExecutionFromAPIGatewayPredictID"
   action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.my_lambda_function.function_name
+  function_name = aws_lambda_function.inference_lambda_function.function_name
   principal     = "apigateway.amazonaws.com"
   source_arn    = "arn:aws:execute-api:${var.region}:${local.aws_account_id}:${aws_api_gateway_rest_api.rest_api.id}/dev/GET/predict/*"
 }

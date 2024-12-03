@@ -1,14 +1,14 @@
 # Create a VPC with a Private Subnet
-resource "aws_vpc" "my_vpc" {
+resource "aws_vpc" "deployment_vpc" {
   cidr_block = "10.0.0.0/16"
 }
 
 resource "aws_internet_gateway" "igw" {
-  vpc_id = aws_vpc.my_vpc.id
+  vpc_id = aws_vpc.deployment_vpc.id
 }
 
 resource "aws_route_table" "public_route_table" {
-  vpc_id = aws_vpc.my_vpc.id
+  vpc_id = aws_vpc.deployment_vpc.id
 
   route {
     cidr_block = "0.0.0.0/0"
@@ -32,12 +32,12 @@ resource "aws_iam_role" "redshift_role" {
 }
 
 resource "aws_redshift_cluster_iam_roles" "redshift_cluster_role" {
-  cluster_identifier = aws_redshift_cluster.my_redshift_cluster.cluster_identifier
+  cluster_identifier = aws_redshift_cluster.redshift_feature_store.cluster_identifier
   iam_role_arns      = [aws_iam_role.redshift_role.arn]
 }
 
 resource "aws_subnet" "public_subnet" {
-  vpc_id            = aws_vpc.my_vpc.id
+  vpc_id            = aws_vpc.deployment_vpc.id
   cidr_block        = "10.0.2.0/24"
   map_public_ip_on_launch = true
 }
@@ -54,7 +54,7 @@ resource "aws_redshift_subnet_group" "redshift_subnet_group" {
 }
 
 # Create a Private Amazon Redshift Cluster
-resource "aws_redshift_cluster" "my_redshift_cluster" {
+resource "aws_redshift_cluster" "redshift_feature_store" {
   cluster_identifier = "my-redshift-cluster"
   node_type          = "dc2.large"
   master_username    = "${var.master_username}"
@@ -69,12 +69,12 @@ resource "aws_redshift_cluster" "my_redshift_cluster" {
 }
 
 output "redshift_cluster_url" {
-  value = "${aws_redshift_cluster.my_redshift_cluster.endpoint}"
+  value = "${aws_redshift_cluster.redshift_feature_store.endpoint}"
   description = "Redshift cluster URL"
 }
 
 resource "aws_security_group" "redshift_sg" {
-  vpc_id = aws_vpc.my_vpc.id
+  vpc_id = aws_vpc.deployment_vpc.id
 
   ingress {
     from_port   = "${var.db_port}"

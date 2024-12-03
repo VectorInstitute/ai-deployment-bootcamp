@@ -85,12 +85,6 @@ resource "aws_iam_policy_attachment" "redshift_data_access" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonRedshiftFullAccess"
 }
 
-# resource "aws_iam_policy_attachment" "sqs_access" {
-#   name       = "lambda_role_redshift_data_access_attachment"
-#   roles      = [aws_iam_role.lambda_role.id]
-#   policy_arn = "arn:aws:iam::aws:policy/AWSLambdaSQSQueueExecutionRole"
-# }
-
 resource "aws_iam_role_policy" "lambda_sqs_policy" {
   role = aws_iam_role.lambda_role.id
 
@@ -105,7 +99,7 @@ resource "aws_iam_role_policy" "lambda_sqs_policy" {
           "sqs:DeleteMessage",
           "sqs:GetQueueAttributes"  # Add this line
         ]
-        Resource = aws_sqs_queue.my_queue.arn
+        Resource = aws_sqs_queue.inference_queue.arn
       }
     ]
   })
@@ -126,7 +120,7 @@ resource "aws_iam_role_policy" "cloudwatch_put_metric_data_policy" {
   })
 }
 
-resource "aws_lambda_function" "my_lambda_function" {
+resource "aws_lambda_function" "inference_lambda_function" {
   filename         = "./lambda.zip"
   function_name    = "bert-paraphrase-tf"
   role             = aws_iam_role.lambda_role.arn
@@ -142,9 +136,9 @@ resource "aws_lambda_function" "my_lambda_function" {
     variables = {
       ENDPOINT_NAME = "${var.sagemaker_endpoint_name}"
       FEATURE_GROUP_NAME = "${var.feature_group_name}"
-      REDSHIFT_URL = "${aws_redshift_cluster.my_redshift_cluster.endpoint}:${aws_redshift_cluster.my_redshift_cluster.port}"
-      REDSHIFT_USER = "${aws_redshift_cluster.my_redshift_cluster.master_username}"
-      CLUSTER_ID = "${aws_redshift_cluster.my_redshift_cluster.id}"
+      REDSHIFT_URL = "${aws_redshift_cluster.redshift_feature_store.endpoint}:${aws_redshift_cluster.redshift_feature_store.port}"
+      REDSHIFT_USER = "${aws_redshift_cluster.redshift_feature_store.master_username}"
+      CLUSTER_ID = "${aws_redshift_cluster.redshift_feature_store.id}"
       DB_NAME = "${var.db_name}"
     }
   }

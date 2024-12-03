@@ -96,7 +96,7 @@ resource "aws_ecr_repository" "lambda_ecr_repo" {
   name = "my-lambda-function-repo"
 }
 
-resource "aws_lambda_function" "my_lambda_function" {
+resource "aws_lambda_function" "inference_lambda_function" {
   filename         = "./lambda.zip"
   function_name    = "bert-paraphrase-tf"
   role             = aws_iam_role.lambda_role.arn
