@@ -1,3 +1,7 @@
+# Online Inferencing Architecture
+In this example, we are going to deploy an online inference pipeline using AWS as illusterated in the architecture below:
+![architecture-diagram.png](architecture-diagram.png)
+
 ## How to Create a Key Pair for AWS:
 
 You can create a key pair using the AWS Management Console, AWS CLI, or SDK. Here is an example using the AWS CLI:
