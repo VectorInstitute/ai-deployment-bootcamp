@@ -36,6 +36,11 @@ variable "sagemaker_endpoint_conf_name" {
   description = "Sagemaker endpoint configuration name"
 }
 
+variable "vpc_name" {
+  type        = string
+  description = "A variable to tag VPC"
+}
+
 variable "sagemaker_endpoint_conf_variant_name" {
   type        = string
   description = "Sagemaker endpoint configuration variant name"

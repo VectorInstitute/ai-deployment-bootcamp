@@ -1,5 +1,5 @@
 resource "aws_iam_role" "lambda_role" {
-  name = "BertParaphraseModelLambdaRoleTF"
+  name = "${local.prefix}-BertParaphraseModelLambdaRoleTF"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -16,7 +16,7 @@ resource "aws_iam_role" "lambda_role" {
 
 # aws_iam_role_policy: For creating inline, role-specific policies.
 resource "aws_iam_role_policy" "lambda_logs_policy" {
-  name = "lambda_role_logs_policy"
+  name = "${local.prefix}-lambda_role_logs_policy"
   role = aws_iam_role.lambda_role.id
 
   policy = jsonencode({
@@ -40,7 +40,7 @@ resource "aws_iam_role_policy" "lambda_logs_policy" {
 }
 
 resource "aws_iam_role_policy" "lambda_sagemaker_policy" {
-  name = "lambda_role_sagemaker_policy"
+  name = "${local.prefix}-lambda_role_sagemaker_policy"
   role = aws_iam_role.lambda_role.id
 
   policy = jsonencode({
@@ -56,7 +56,7 @@ resource "aws_iam_role_policy" "lambda_sagemaker_policy" {
 }
 
 resource "aws_iam_role_policy" "lambda_sagemaker_featurestore_policy" {
-  name = "lambda_role_sagemaker_featurestore_policy"
+  name = "${local.prefix}-lambda_role_sagemaker_featurestore_policy"
   role = aws_iam_role.lambda_role.id
 
   policy = jsonencode({
@@ -80,7 +80,7 @@ resource "aws_iam_role_policy" "lambda_sagemaker_featurestore_policy" {
 # aws_iam_policy_attachment: For attaching existing managed policies 
 # (either AWS-managed or your own custom policies) to roles, users, or groups.
 resource "aws_iam_policy_attachment" "redshift_data_access" {
-  name       = "lambda_role_redshift_data_access_attachment"
+  name       = "${local.prefix}-lambda_role_redshift_data_access_attachment"
   roles      = [aws_iam_role.lambda_role.id]
   policy_arn = "arn:aws:iam::aws:policy/AmazonRedshiftDataFullAccess"
 }
@@ -98,7 +98,7 @@ resource "aws_ecr_repository" "lambda_ecr_repo" {
 
 resource "aws_lambda_function" "inference_lambda_function" {
   filename         = "./lambda.zip"
-  function_name    = "bert-paraphrase-tf"
+  function_name    = "${local.prefix}-bert-paraphrase-tf"
   role             = aws_iam_role.lambda_role.arn
   handler          = "lambda_function.lambda_handler"
   runtime          = "python3.8"
@@ -111,8 +111,8 @@ resource "aws_lambda_function" "inference_lambda_function" {
   timeout = 900
   environment {
     variables = {
-      ENDPOINT_NAME = "${var.sagemaker_endpoint_name}"
-      FEATURE_GROUP_NAME = "${var.feature_group_name}"
+      ENDPOINT_NAME = "${aws_sagemaker_endpoint.paraphrase_endpoint.name}"
+      FEATURE_GROUP_NAME = "${aws_sagemaker_feature_group.paraphrase_fg.feature_group_name}"
       # AWS_DEFAULT_REGION = "${var.region}"
     }
   }

@@ -1,6 +1,6 @@
 # Create an SQS Queue
 resource "aws_sqs_queue" "inference_queue" {
-  name                       = "inference_queue"
+  name                       = "${local.prefix}-inference_queue"
   visibility_timeout_seconds  = 300
   message_retention_seconds   = 86400
 }

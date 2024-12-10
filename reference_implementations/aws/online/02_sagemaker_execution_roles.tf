@@ -1,5 +1,5 @@
 resource "aws_iam_role" "sagemaker_execution_role" {
-  name = "SagemakerModelExecutionRole"
+  name = "${local.prefix}-SagemakerModelExecutionRole"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -16,7 +16,7 @@ resource "aws_iam_role" "sagemaker_execution_role" {
 }
 
 resource "aws_iam_policy" "sagemaker_execution_role_policy" {
-  name        = "sagemaker-execution-role-policy"
+  name        = "${local.prefix}-sagemaker-execution-role-policy"
   description = "Policy for SageMaker model"
   policy = jsonencode({
     Version = "2012-10-17"

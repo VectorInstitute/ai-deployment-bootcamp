@@ -1,5 +1,5 @@
 resource "aws_api_gateway_rest_api" "rest_api" {
-  name        = var.rest_api_name
+  name        = "${local.prefix}-${var.rest_api_name}"
   description = var.rest_api_description
 
   tags = merge(
@@ -9,7 +9,7 @@ resource "aws_api_gateway_rest_api" "rest_api" {
 }
 
 resource "aws_iam_role" "api_gateway_role" {
-  name = "api_gateway_role"
+  name = "${local.prefix}-api_gateway_role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"

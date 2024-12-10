@@ -61,6 +61,11 @@ variable "sagemaker_container_repo_url" {
   description = "Url of the sagemaker app container"
 }
 
+variable "vpc_name" {
+  type        = string
+  description = "A variable to tag VPC"
+}
+
 variable "sagemaker_model_mode" {
   type        = string
   description = "Sagemaker model deployment mode"

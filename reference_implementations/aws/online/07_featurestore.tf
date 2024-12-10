@@ -1,5 +1,5 @@
-resource "aws_sagemaker_feature_group" "example" {
-  feature_group_name             = "${var.feature_group_name}"
+resource "aws_sagemaker_feature_group" "paraphrase_fg" {
+  feature_group_name             = "${local.prefix}-${var.feature_group_name}"
   record_identifier_feature_name = "id"
   event_time_feature_name        = "id" # You can add a timestamp to your feautre or use their identifier
   role_arn                       = aws_iam_role.sagemaker_execution_role.arn

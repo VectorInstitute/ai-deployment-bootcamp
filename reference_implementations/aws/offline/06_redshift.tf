@@ -1,6 +1,11 @@
 # Create a VPC with a Private Subnet
 resource "aws_vpc" "deployment_vpc" {
   cidr_block = "10.0.0.0/16"
+  tags = merge(
+    local.common_tags,
+    { "Name" = "${local.prefix}-${var.vpc_name}" }
+  )
+
 }
 
 resource "aws_internet_gateway" "igw" {
@@ -49,13 +54,13 @@ resource "aws_route_table_association" "public_subnet_association" {
 
 # Create a Subnet Group and Add VPC and Subnet
 resource "aws_redshift_subnet_group" "redshift_subnet_group" {
-  name       = "my-redshift-subnet-group"
+  name       = "${local.prefix}-redshift-subnet-group"
   subnet_ids = [aws_subnet.public_subnet.id]
 }
 
 # Create a Private Amazon Redshift Cluster
 resource "aws_redshift_cluster" "redshift_feature_store" {
-  cluster_identifier = "my-redshift-cluster"
+  cluster_identifier = "${local.prefix}-paraphrase-redshift-cluster"
   node_type          = "dc2.large"
   master_username    = "${var.master_username}"
   master_password    = "${var.master_password}"
