@@ -1,0 +1,19 @@
+{
+    "resource": "/predict/{id}",
+    "path": "/predict/3",
+    "httpMethod": "GET",
+    "isBase64Encoded": false,
+    "pathParameters": {
+      "id": "3"
+    },
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "requestContext": {
+      "accountId": "123456789012",
+      "resourceId": "abc123",
+      "stage": "dev",
+      "path": "/predict/3",
+      "httpMethod": "GET"
+    }
+  }

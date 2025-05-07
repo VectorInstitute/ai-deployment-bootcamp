@@ -7,6 +7,15 @@
 *.terraform/
 *terraform.tfstate*
 *.terraform.tfstate.lock.info
+*terraform.tfstate.backup
 
 *bart-large-mnli/
 *ml-api.zip
+/.idea
+
+*venv/
+*bart-large-mnli/
+*paraphrase-bert/
+
+__pycache__/
+*.zip
