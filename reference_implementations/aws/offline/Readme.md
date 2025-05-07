@@ -20,7 +20,7 @@ In this example:
 ## Steps to Use Your SSH Key with AWS (our approach)
 
 ### Create a Key Pair in AWS:
-If you already have an SSH key pair (~/.ssh/id_rsa and ~/.ssh/id_rsa.pub), you can import the public key into AWS to create a key pair.
+If you already have an SSH key pair (`~/.ssh/id_rsa` and `~/.ssh/id_rsa.pub`), you can import the public key into AWS to create a key pair.
 
 Use the AWS CLI to import the key:
 
