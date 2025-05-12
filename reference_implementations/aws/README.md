@@ -33,7 +33,7 @@ aws configure
 
  After AWS CLI is configured, you can proceed to either one of the guides below,
  depending on which kind of pipeline you want to set up:
- - If you need an online (real-time) inferencing architecture, please follow the
+ - If you need an ***online (real-time)*** inferencing architecture, please follow the
 [online/README.md](online/README.md) guide.
-- If you need an offline (batch) inferencing architecture, please follow the
+- If you need an ***offline (batch)*** inferencing architecture, please follow the
 [offline/README.md](offline/README.md) guide.
