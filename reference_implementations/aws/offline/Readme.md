@@ -127,7 +127,7 @@ Remember to repeat this step every time you change anything in your Lambda Funct
 ## Step 3: Terraform deploy
 
 > [!NOTE]
->Don't forget to change the variables' values in [`terraform.tfvars`](./terraform.tfvars) file as per your preferences**
+>Don't forget to change the variables' values in [`terraform.tfvars`](./terraform.tfvars) file as per your preferences
 
 ```bash
 terraform init

@@ -127,7 +127,7 @@ Remember to repeat this step every time you change anything in your Lambda Funct
 ## Step 3: Terraform deploy
 
 > [!NOTE]
->Don't forget to change the variables' values in [`terraform.tfvars`](./terraform.tfvars) file as per your preferences**
+>Don't forget to change the variables' values in [`terraform.tfvars`](./terraform.tfvars) file as per your preferences
 
 ```bash
 terraform init
@@ -213,4 +213,3 @@ In this step of the AWS model deployment, we are going to add a feature store, a
 Before using the endpoint that retrieves data from feature store for inference, you have to ingest some data into it. Simply run [`ingest_data_to_fs.py`](./aws_sagemaker/ingest_data_to_fs.py) to do so.
 
 Then you can send an id to `/prediction/{id}` API endpoint to get the prediction result.
- 
