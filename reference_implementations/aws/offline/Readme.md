@@ -1,5 +1,7 @@
 # Offline Inferencing Architecture
+
 In this example, we are going to deploy an offline inference pipeline using AWS as illusterated in the architecture below:
+
 ![architecture-diagram.png](architecture-diagram.png)
 
 You will need to register a key pair in AWS order to access the instances. You can create a new one
@@ -53,7 +55,7 @@ and enter your AWS Access Key ID and Secret Key ID.
 
 Create a s3 bucket to store the terraform state. The bucket should have version enabled. Enabling versioning for the S3 bucket storing Terraform state allows maintaining historical versions of the state file, aiding in disaster recovery, change tracking, and collaborative work.
 
-**Create s3 bucket from CLI**
+**Create an S3 bucket from the CLI**
 
 ```bash
 aws s3api create-bucket \
@@ -65,7 +67,7 @@ aws s3api create-bucket \
 > [!NOTE]
 > Change the name of the bucket in this command, as bucket names are global.
 
-**Enable Version**
+**Enable Versioning**
 
 ```bash
 aws s3api put-bucket-versioning \
@@ -94,9 +96,9 @@ traced_model-ml_inf1.tar.gz/
 └── tokenizer_config.josn
 ```
 
-The compressed model folder should also contain the model artifacts, like model config and the model weights. Here actual model files like `pytorch_model.bin` and `config.json` are absent. You should get it from the link here [Paraphrase Classification Model with BERT](https://huggingface.co/Prompsit/paraphrase-bert-en/tree/main)
+The compressed model folder should also contain the model artifacts, like the model config and the model weights. Here, actual model files like `pytorch_model.bin` and `config.json` are absent. You should get it from the following link: [Paraphrase Classification Model with BERT](https://huggingface.co/Prompsit/paraphrase-bert-en/tree/main)
 
-Prepare the model artifacts and upload them to S3 bucket using the [`upload_model.py`](./aws_sagemaker/upload_model.py) script. It uploads models to SageMaker's default S3 bucket.
+Prepare the model artifacts and upload them to an S3 bucket using the [`upload_model.py`](./aws_sagemaker/upload_model.py) script. It uploads models to SageMaker's default S3 bucket.
 
 Here we have prepared two model artifacts: a normal model and a traced model. The traced model is later used to compile model specifically for AWS Inferentia chips, which are cheaper and faster.
 
@@ -106,7 +108,7 @@ Update any variable required (under `TODO`s) in the [`deploy.py`](./aws_sagemake
 
 After successful running of `deploy.py`, the S3 URL for compiled model is printed. 
 
-Now, Copy the S3 model artifacts (`.tar.gz` file) link and place it into `sagemaker_model_data_s3_url` in the [`terraform.tfvars`](./terraform.tfvars) file. There's no need to repeat this compilation and upload step in the future unless you delete your `tar.gz` model file from the S3 bucket or change your model.
+Now, Copy the S3 model artifacts (`.tar.gz` file) link and place it into `sagemaker_model_data_s3_url` in the [`terraform.tfvars`](./terraform.tfvars) file. There's no need to repeat this compilation and upload step in the future unless you delete your `.tar.gz` model file from the S3 bucket or make changes to your model.
 
 
 ### Compress the Lambda function for deployment:
@@ -116,7 +118,7 @@ zip -r lambda.zip ./ml-api/* -j
 ```
 
 - `zip -r lambda.zip` : It creates a zip file named `lambda.zip`
-- `./ml-api/*` : It specify the path of the files and folders inside the `ml-api` directory. The `*` glob pattern is used to include all files and folders inside the `lambda` directory.
+- `./ml-api/*` : It specifies the path of the files and folders inside the `ml-api` directory. The `*` glob pattern is used to include all files and folders inside the `lambda` directory.
 - `-j`: With this option, `zip` will store only the relative paths of the files, effectively flattening the folder structure inside the zip archive.
 
 Remember to repeat this step every time you change anything in your Lambda Functions.
@@ -124,7 +126,8 @@ Remember to repeat this step every time you change anything in your Lambda Funct
 
 ## Step 3: Terraform deploy
 
-**Don't forget to change variables name in `terraform.tfvars` file as your preferences**
+> [!NOTE]
+>Don't forget to change the variables' values in [`terraform.tfvars`](./terraform.tfvars) file as per your preferences**
 
 ```bash
 terraform init
@@ -170,11 +173,15 @@ Apply complete! Resources: 16 added, 0 changed, 0 destroyed.
 ```
 
 ## Caution!!!
->[!CAUTION] Remember that `terraform apply` and `terraform destroy` can make changes to our infrastructure, so use them with caution.** 
 
-> [!CAUTION] Always carefully review the execution plan produced by `terraform plan` before applying changes to ensure that the impact on your infrastructure is well understood.**
+>[!CAUTION] 
+> Remember that `terraform apply` and `terraform destroy` can make changes to our infrastructure, so use them with caution.** 
+
+> [!CAUTION]
+> Always carefully review the execution plan produced by `terraform plan` before applying changes to ensure that the impact on your infrastructure is well understood.**
 
 ## Feeding the Feature Store
+
 Before using the endpoint that retrieves data from feature store for inference, you have to ingest some data into it. Simply run the [`ingest_data_to_fs.py`](./aws_sagemaker/ingest_data_to_fs.py) script to do so.
 
 ## Offline inference
