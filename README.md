@@ -31,6 +31,7 @@ that provides an overview of the code, prerequisites, and detailed instructions.
 
 Here is the list of the covered cloud providers:
 - [Google Cloud Provider (GCP)](reference_implementations/gcp)
+- [Amazon Web Services (AWS)](reference_implementations/aws)
 
 ## Getting Started
 
