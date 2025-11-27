@@ -15,7 +15,7 @@ and testing the pipelines.
 
 ## Repository Structure
 
-- **reference_implementations/**: Reference Implementations are organized by cloud
+- **implementations/**: Reference Implementations are organized by cloud
 provider. Each reference implementation has its own directory containing scripts,
 terraform plans, and a README for guidance.
 - **data/**: Includes sample datasets or links to datasets used in the bootcamp,
@@ -26,12 +26,12 @@ and anything related to that.
 ### Reference Implementations Directory
 
 Each cloud provider covered in the bootcamp has a dedicated directory in the
-`reference_implementations/` directory. In each directory, there is a README file
+`implementations/` directory. In each directory, there is a README file
 that provides an overview of the code, prerequisites, and detailed instructions.
 
 Here is the list of the covered cloud providers:
-- [Google Cloud Provider (GCP)](reference_implementations/gcp)
-- [Amazon Web Services (AWS)](reference_implementations/aws)
+- [Google Cloud Provider (GCP)](implementations/gcp)
+- [Amazon Web Services (AWS)](implementations/aws)
 
 ## Getting Started
 
